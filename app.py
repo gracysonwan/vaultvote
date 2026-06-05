@@ -30,7 +30,7 @@ else:
 
 # ── Admin credentials ─────────────────────────────────────────
 ADMIN_ID       = 'ADMIN001'
-ADMIN_PASSWORD = 'VaultAdmin@2026'
+ADMIN_PASSWORD = 'VaultAdmin@2024'
 
 # ── Candidates (seeded at startup) ───────────────────────────
 CANDIDATES = [
