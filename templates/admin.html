@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VaultVote Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+
+body { background: linear-gradient(135deg,#f0f8ff,#e0f1ff); }
+#admin-wrap { max-width:1300px; margin:0 auto; padding:2rem 2rem 5rem; }
+.admin-nav { position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:1rem 2rem;margin-bottom:2rem;background:rgba(255,255,255,.88);backdrop-filter:blur(20px);border-bottom:1px solid rgba(100,180,240,.2);border-radius:0 0 16px 16px; }
+.admin-nav .nav-logo { font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:#1a6fa5;letter-spacing:.06em; }
+.admin-nav .nav-logo span { color:#e03e3e; }
+.admin-badge { background:rgba(224,62,62,.1);color:#e03e3e;border:1px solid rgba(224,62,62,.25);padding:.3rem .8rem;border-radius:100px;font-size:.72rem;font-weight:700;letter-spacing:.06em; }
+.admin-nav-right { display:flex;gap:.8rem;align-items:center; }
+.section-title { font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:.04em;color:#0b3352;margin:2.5rem 0 1rem; }
+.admin-stats { display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:1rem;margin-bottom:2rem; }
+.a-stat { background:rgba(255,255,255,.58);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.9);border-radius:18px;padding:1.4rem 1.6rem;box-shadow:0 8px 28px rgba(45,143,203,.12),inset 0 1.5px 0 rgba(255,255,255,.95); }
+.a-stat .val { font-family:'Bebas Neue',sans-serif;font-size:2.6rem;color:#1a6fa5;line-height:1;letter-spacing:.04em; }
+.a-stat .lbl { font-size:.68rem;color:#4a7a9b;text-transform:uppercase;letter-spacing:.07em;margin-top:.25rem; }
+.a-stat.success .val { color:#2d8a4e; }
+.chain-banner { display:flex;align-items:center;gap:.8rem;padding:.9rem 1.4rem;border-radius:12px;margin-bottom:1rem;font-size:.83rem;font-weight:500; }
+.chain-banner.ok { background:rgba(45,138,78,.1);border:1px solid rgba(45,138,78,.25);color:#2d8a4e; }
+.chain-banner.broken { background:rgba(224,62,62,.1);border:1px solid rgba(224,62,62,.25);color:#e03e3e; }
+.admin-results { display:flex;flex-direction:column;gap:.85rem;margin-bottom:2rem; }
+.res-row { background:rgba(255,255,255,.58);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.9);border-radius:14px;padding:1rem 1.4rem;box-shadow:0 4px 16px rgba(45,143,203,.12); }
+.res-top { display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem; }
+.res-name { font-family:'Syne',sans-serif;font-weight:700;font-size:.9rem;color:#0b3352; }
+.res-party { font-size:.7rem;color:#4a7a9b; }
+.res-count { font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:#1a6fa5;letter-spacing:.04em; }
+.bar-track { height:10px;background:rgba(45,143,203,.1);border-radius:100px;overflow:hidden; }
+.bar-fill { height:100%;border-radius:100px;background:linear-gradient(90deg,#2d8fcb,#00b8e6);transition:width 1.2s cubic-bezier(.16,1,.3,1);box-shadow:0 0 10px rgba(45,143,203,.3); }
+.data-table { width:100%;border-collapse:collapse;font-size:.8rem; }
+.data-table th { padding:.7rem 1rem;text-align:left;background:rgba(45,143,203,.06);font-size:.68rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#4a7a9b;border-bottom:1px solid rgba(100,180,240,.2); }
+.data-table td { padding:.75rem 1rem;border-bottom:1px solid rgba(45,143,203,.07);color:#0b3352;vertical-align:middle; }
+.data-table tr:last-child td { border-bottom:none; }
+.data-table tr:hover td { background:rgba(255,255,255,.5); }
+.voted-yes { display:inline-block;padding:.2rem .55rem;border-radius:100px;background:rgba(45,138,78,.1);color:#2d8a4e;font-size:.62rem;font-weight:700;letter-spacing:.05em; }
+.voted-no  { display:inline-block;padding:.2rem .55rem;border-radius:100px;background:rgba(45,143,203,.1);color:#1a6fa5;font-size:.62rem;font-weight:700;letter-spacing:.05em; }
+.audit-table-wrap { background:rgba(255,255,255,.58);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.9);border-radius:18px;overflow:hidden;box-shadow:0 8px 28px rgba(45,143,203,.12);margin-bottom:2rem; }
+.mono { font-family:monospace;font-size:.65rem;color:#2d8fcb; }
+.danger-zone { background:rgba(224,62,62,.06);border:1px solid rgba(224,62,62,.2);border-radius:16px;padding:1.5rem; }
+.danger-title { font-family:'Syne',sans-serif;font-weight:700;color:#e03e3e;margin-bottom:.5rem; }
+.danger-desc { font-size:.82rem;color:#4a7a9b;margin-bottom:1rem; }
+.btn-danger { padding:.7rem 1.8rem;border-radius:100px;border:none;cursor:pointer;background:#e03e3e;color:#fff;font-family:'DM Sans',sans-serif;font-size:.85rem;font-weight:600;transition:all .3s; }
+.btn-danger:hover { background:#c02a2a;transform:translateY(-2px); }
+.btn-outline { padding:.5rem 1.2rem;border-radius:100px;cursor:pointer;background:rgba(255,255,255,.7);border:1.5px solid rgba(100,180,240,.42);color:#1a6fa5;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:500;text-decoration:none;transition:all .3s; }
+.btn-outline:hover { background:#fff; }
+.nav-btn { padding:.5rem 1.4rem;border-radius:100px;border:none;cursor:pointer;background:linear-gradient(135deg,#2d8fcb,#1a6fa5);color:#fff;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:500;transition:all .3s; }
+.nav-btn:hover { transform:translateY(-2px); }
+#cur { position:fixed;z-index:9999;pointer-events:none;width:12px;height:12px;background:#2d8fcb;border-radius:50%;transform:translate(-50%,-50%);mix-blend-mode:multiply; }
+#cur-ring { position:fixed;z-index:9998;pointer-events:none;width:40px;height:40px;border:1.5px solid rgba(45,143,203,.4);border-radius:50%;transform:translate(-50%,-50%); }
+@media(max-width:768px){.admin-nav{flex-wrap:wrap;gap:.8rem}.admin-stats{grid-template-columns:1fr 1fr}}
+
+</style>
+</head>
+<body>
+
+<div id="cur"></div>
+<div id="cur-ring"></div>
+
+<div class="admin-nav">
+  <div class="nav-logo">Vault<span>Vote</span> <span class="admin-badge">ADMIN</span></div>
+  <div class="admin-nav-right">
+    <div class="chain-banner ok" id="chain-status" style="margin:0;padding:.4rem .9rem;font-size:.75rem">⛓️ Verifying chain…</div>
+    <a href="/" class="btn-outline">&#8592; Public Site</a>
+    <button class="nav-btn" onclick="doAdminLogout()">Logout</button>
+  </div>
+</div>
+
+<div id="admin-wrap">
+  <div class="section-title">Live Dashboard</div>
+  <div class="admin-stats" id="admin-stats">
+    <div class="a-stat"><div class="val" id="as-voters">—</div><div class="lbl">Total Voters</div></div>
+    <div class="a-stat success"><div class="val" id="as-cast">—</div><div class="lbl">Votes Cast</div></div>
+    <div class="a-stat"><div class="val" id="as-turnout">—</div><div class="lbl">Turnout</div></div>
+    <div class="a-stat"><div class="val" id="as-audit">—</div><div class="lbl">Audit Entries</div></div>
+  </div>
+
+  <div class="section-title">Vote Tally</div>
+  <div class="admin-results" id="admin-results"></div>
+
+  <div class="section-title">Recent Registrations</div>
+  <div class="audit-table-wrap">
+    <table class="data-table">
+      <thead><tr><th>Student ID</th><th>Name</th><th>Department</th><th>Registered</th><th>Has Voted</th><th>Voted At</th></tr></thead>
+      <tbody id="voters-tbody"></tbody>
+    </table>
+  </div>
+
+  <div class="section-title">Blockchain Audit Log</div>
+  <div class="audit-table-wrap">
+    <table class="data-table">
+      <thead><tr><th>#</th><th>Vote ID</th><th>Candidate</th><th>SHA-256 Hash</th><th>Chain Hash</th><th>Timestamp</th><th>Status</th></tr></thead>
+      <tbody id="audit-tbody"></tbody>
+    </table>
+  </div>
+
+  <div class="section-title">System Controls</div>
+  <div class="danger-zone">
+    <div class="danger-title"> Reset Election</div>
+    <div class="danger-desc">Clears all votes and audit log. Voter registrations are preserved. Use only for testing.</div>
+    <button class="btn-danger" onclick="resetElection()">Reset All Votes</button>
+  </div>
+</div>
+
+<script>
+/**
+ * VaultVote — Admin Dashboard
+ * Loads live stats, results, voter list, audit chain.
+ */
+
+(function () {
+  'use strict';
+
+  /* ── Cursor (same as main site) ── */
+  var curEl  = document.getElementById('cur');
+  var ringEl = document.getElementById('cur-ring');
+  if (curEl && ringEl) {
+    var mx = innerWidth / 2, my = innerHeight / 2;
+    var rx = mx, ry = my;
+    document.addEventListener('mousemove', function (e) {
+      mx = e.clientX; my = e.clientY;
+      curEl.style.transform = 'translate(' + mx + 'px,' + my + 'px) translate(-50%,-50%)';
+    });
+    (function loopRing() {
+      rx += (mx - rx) * 0.11;
+      ry += (my - ry) * 0.11;
+      ringEl.style.transform = 'translate(' + rx + 'px,' + ry + 'px) translate(-50%,-50%)';
+      requestAnimationFrame(loopRing);
+    })();
+  }
+
+  /* ── Auth guard ── */
+  function checkAdmin() {
+    fetch('/api/me', { credentials: 'same-origin' })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (!data.authenticated || data.role !== 'admin') {
+          /* Show inline login instead of redirecting */
+          showAdminLogin();
+        } else {
+          hideAdminLogin();
+          loadDashboard();
+          setInterval(loadDashboard, 10000);
+        }
+      })
+      .catch(function () { showAdminLogin(); });
+  }
+
+  function showAdminLogin() {
+    var loginDiv = document.getElementById('admin-login-wall');
+    if (loginDiv) loginDiv.style.display = 'flex';
+    var wrap = document.getElementById('admin-wrap');
+    if (wrap) wrap.style.display = 'none';
+  }
+
+  function hideAdminLogin() {
+    var loginDiv = document.getElementById('admin-login-wall');
+    if (loginDiv) loginDiv.style.display = 'none';
+    var wrap = document.getElementById('admin-wrap');
+    if (wrap) wrap.style.display = 'block';
+  }
+
+  window.adminLogin = function() {
+    var id   = document.getElementById('adm-id').value.trim().toUpperCase();
+    var pass = document.getElementById('adm-pass').value;
+    var msg  = document.getElementById('adm-msg');
+    msg.textContent = '';
+    fetch('/api/login', {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ student_id: id, password: pass })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (!data.success) { msg.textContent = data.error || 'Login failed'; return; }
+      if (data.role !== 'admin') { msg.textContent = 'Not an admin account.'; return; }
+      hideAdminLogin();
+      loadDashboard();
+      setInterval(loadDashboard, 10000);
+    })
+    .catch(function() { msg.textContent = 'Network error.'; });
+  };
+
+  /* ── Logout ── */
+  window.doAdminLogout = function () {
+    fetch('/api/logout', { method: 'POST', credentials: 'same-origin' })
+      .then(function () { window.location.href = '/'; });
+  };
+
+  /* ── Load Dashboard ── */
+  function loadDashboard() {
+    fetch('/api/admin/dashboard', { credentials: 'same-origin' })
+      .then(function (r) {
+        if (r.status === 403) { window.location.href = '/'; return null; }
+        return r.json();
+      })
+      .then(function (data) {
+        if (!data) return;
+        renderStats(data.stats);
+        renderResults(data.results, data.stats.total_votes);
+        renderVoters(data.recent_voters);
+        renderAudit(data.audit_log);
+        renderChainStatus(data.stats.chain_valid);
+      })
+      .catch(function (e) {
+        console.error('Dashboard load error:', e);
+      });
+  }
+
+  /* ── Stats ── */
+  function renderStats(s) {
+    setText('as-voters',  s.total_voters);
+    setText('as-cast',    s.votes_cast);
+    setText('as-turnout', s.turnout + '%');
+    setText('as-audit',   s.audit_entries);
+  }
+
+  /* ── Results ── */
+  function renderResults(results, total) {
+    var el = document.getElementById('admin-results');
+    if (!el || !results) return;
+
+    var maxVotes = Math.max.apply(null, results.map(function (r) { return r.vote_count; })) || 1;
+    var emojis   = { C001: '👨‍💼', C002: '👩‍🔬', C003: '👨‍🎓', C004: '🌱', C005: '🤝' };
+
+    el.innerHTML = results.map(function (r) {
+      var pct  = Math.round((r.vote_count / maxVotes) * 100);
+      var vpct = total > 0 ? Math.round(r.vote_count / total * 100) : 0;
+      var icon = emojis[r.id] || '👤';
+      return [
+        '<div class="res-row">',
+          '<div class="res-top">',
+            '<div>',
+              '<span class="res-name">' + icon + ' ' + esc(r.name) + '</span>',
+              '<span class="res-party"> · ' + esc(r.party) + '</span>',
+            '</div>',
+            '<div class="res-count">' + r.vote_count + ' <small style="font-size:.75rem;color:var(--muted)">(' + vpct + '%)</small></div>',
+          '</div>',
+          '<div class="bar-track"><div class="bar-fill" style="width:' + pct + '%"></div></div>',
+        '</div>'
+      ].join('');
+    }).join('');
+  }
+
+  /* ── Voters Table ── */
+  function renderVoters(voters) {
+    var tbody = document.getElementById('voters-tbody');
+    if (!tbody || !voters) return;
+
+    if (!voters.length) {
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:1.5rem;color:var(--muted)">No registrations yet</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = voters.map(function (v) {
+      var regDate  = v.registered_at ? new Date(v.registered_at).toLocaleDateString() : '—';
+      var votedAt  = v.voted_at      ? new Date(v.voted_at).toLocaleTimeString()       : '—';
+      var badge    = v.has_voted
+        ? '<span class="voted-yes">✓ VOTED</span>'
+        : '<span class="voted-no">Pending</span>';
+      return [
+        '<tr>',
+          '<td><code>' + esc(v.student_id) + '</code></td>',
+          '<td>' + esc(v.full_name) + '</td>',
+          '<td>' + esc(v.department) + '</td>',
+          '<td>' + esc(regDate) + '</td>',
+          '<td>' + badge + '</td>',
+          '<td style="font-family:monospace;font-size:.72rem">' + esc(votedAt) + '</td>',
+        '</tr>'
+      ].join('');
+    }).join('');
+  }
+
+  /* ── Audit Log ── */
+  function renderAudit(log) {
+    var tbody = document.getElementById('audit-tbody');
+    if (!tbody || !log) return;
+
+    if (!log.length) {
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:1.5rem;color:var(--muted)">No audit entries yet</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = log.map(function (e, i) {
+      var shortHash  = e.sha256_hash  ? e.sha256_hash.substring(0, 12)  + '…' : '—';
+      var shortChain = e.chain_hash   ? e.chain_hash.substring(0, 12)   + '…' : '—';
+      var ts         = e.timestamp    ? new Date(e.timestamp).toLocaleTimeString() : '—';
+      return [
+        '<tr>',
+          '<td>' + (i + 1) + '</td>',
+          '<td><code>' + esc(e.vote_id || '—') + '</code></td>',
+          '<td>' + esc(e.candidate_name || '—') + '</td>',
+          '<td class="mono" title="' + esc(e.sha256_hash) + '">' + esc(shortHash) + '</td>',
+          '<td class="mono" title="' + esc(e.chain_hash)  + '">' + esc(shortChain) + '</td>',
+          '<td style="font-family:monospace;font-size:.72rem">' + esc(ts) + '</td>',
+          '<td><span class="voted-yes">✓ OK</span></td>',
+        '</tr>'
+      ].join('');
+    }).join('');
+  }
+
+  /* ── Chain Status Banner ── */
+  function renderChainStatus(valid) {
+    var el = document.getElementById('chain-status');
+    if (!el) return;
+    if (valid) {
+      el.className   = 'chain-banner ok';
+      el.textContent = '⛓️ Blockchain audit chain: INTACT — all hashes verified';
+    } else {
+      el.className   = 'chain-banner broken';
+      el.textContent = ' Blockchain audit chain: BROKEN — tampering detected!';
+    }
+  }
+
+  /* ── Reset Election ── */
+  window.resetElection = function () {
+    var confirmed = window.confirm(
+      'WARNING: This will delete ALL votes and the audit log.\n\nVoter accounts will be kept.\n\nType OK to confirm.'
+    );
+    if (!confirmed) return;
+
+    fetch('/api/admin/reset', {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' }
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (data.success) {
+          alert('Election reset complete. All votes cleared.');
+          loadDashboard();
+        } else {
+          alert('Error: ' + (data.error || 'Unknown error'));
+        }
+      })
+      .catch(function () { alert('Network error during reset.'); });
+  };
+
+  /* ── Helpers ── */
+  function setText(id, text) {
+    var el = document.getElementById(id);
+    if (el) el.textContent = text;
+  }
+
+  function esc(str) {
+    if (!str) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  /* ── Start ── */
+  checkAdmin();
+
+})();
+
+</script>
+
+<!-- ADMIN LOGIN WALL -->
+<div id="admin-login-wall" style="display:none;position:fixed;inset:0;z-index:500;background:linear-gradient(135deg,#f0f8ff,#daeeff);align-items:center;justify-content:center;">
+  <div style="background:#fff;border-radius:24px;padding:2.5rem;width:90%;max-width:400px;box-shadow:0 20px 60px rgba(45,143,203,.2);text-align:center;">
+    <div style="font-size:3rem;margin-bottom:1rem;"></div>
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:2rem;color:#1a6fa5;letter-spacing:.05em;margin-bottom:.3rem;">VaultVote</div>
+    <div style="font-size:.75rem;letter-spacing:.15em;text-transform:uppercase;color:#4a7a9b;margin-bottom:2rem;">Admin Panel</div>
+    <div id="adm-msg" style="color:#e03e3e;font-size:.8rem;min-height:1.2rem;margin-bottom:.8rem;"></div>
+    <div style="margin-bottom:1rem;text-align:left;">
+      <label style="font-size:.72rem;color:#4a7a9b;font-weight:600;letter-spacing:.05em;text-transform:uppercase;display:block;margin-bottom:.4rem;">Admin ID</label>
+      <input id="adm-id" type="text" value="ADMIN001" style="width:100%;padding:.75rem 1rem;border:1.5px solid rgba(45,143,203,.25);border-radius:10px;font-size:.9rem;font-family:'DM Sans',sans-serif;outline:none;" placeholder="ADMIN001">
+    </div>
+    <div style="margin-bottom:1.4rem;text-align:left;">
+      <label style="font-size:.72rem;color:#4a7a9b;font-weight:600;letter-spacing:.05em;text-transform:uppercase;display:block;margin-bottom:.4rem;">Password</label>
+      <input id="adm-pass" type="password" style="width:100%;padding:.75rem 1rem;border:1.5px solid rgba(45,143,203,.25);border-radius:10px;font-size:.9rem;font-family:'DM Sans',sans-serif;outline:none;" placeholder="VaultAdmin@2024" onkeydown="if(event.key==='Enter')adminLogin()">
+    </div>
+    <button onclick="adminLogin()" style="width:100%;padding:.85rem;border:none;border-radius:100px;background:linear-gradient(135deg,#2d8fcb,#1a6fa5);color:#fff;font-size:.95rem;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;box-shadow:0 6px 20px rgba(45,143,203,.3);">Login to Admin Panel</button>
+    <p style="font-size:.72rem;color:#4a7a9b;margin-top:1rem;">Default: ADMIN001 / VaultAdmin@2024</p>
+    <a href="/" style="font-size:.75rem;color:#2d8fcb;display:block;margin-top:.8rem;">← Back to Voting Site</a>
+  </div>
+</div>
+
+</body>
+</html>

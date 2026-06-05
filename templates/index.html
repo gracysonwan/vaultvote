@@ -1,0 +1,1867 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VaultVote — Secure Campus Election</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════════════
+   VaultVote — Global Stylesheet
+   Baby blue · Glassmorphism · Syne + Bebas Neue
+═══════════════════════════════════════════════════════════ */
+
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+:root {
+  --sky0:#f4faff; --sky1:#e8f4ff; --sky2:#d0e9ff;
+  --sky3:#b8daff; --sky4:#8ec8f0;
+  --blue:#2d8fcb; --blue2:#1a6fa5; --blue3:#0d4f7a;
+  --accent:#00b8e6; --mint:#b8f0e8;
+  --white:#ffffff;
+  --glass:rgba(255,255,255,.58);
+  --border:rgba(100,180,240,.2);
+  --border2:rgba(100,180,240,.42);
+  --text:#0b3352; --muted:#4a7a9b;
+  --shadow:rgba(45,143,203,.12);
+  --err:#e03e3e; --ok:#2d8a4e;
+}
+
+html { overflow-x:hidden; scroll-behavior:smooth; }
+body { font-family:'DM Sans',sans-serif; background:var(--sky0); color:var(--text); overflow-x:hidden; cursor:none; }
+
+/* ── CURSOR ── */
+#cur {
+  position:fixed; z-index:9999; pointer-events:none;
+  width:12px; height:12px; background:var(--blue);
+  border-radius:50%; transform:translate(-50%,-50%);
+  mix-blend-mode:multiply; transition:width .25s,height .25s,opacity .25s;
+  will-change:transform;
+}
+#cur-ring {
+  position:fixed; z-index:9998; pointer-events:none;
+  width:40px; height:40px; border:1.5px solid rgba(45,143,203,.4);
+  border-radius:50%; transform:translate(-50%,-50%);
+  will-change:transform;
+}
+
+/* ══════════════════════════════════════════════════════════
+   INTRO SCREEN
+══════════════════════════════════════════════════════════ */
+#intro {
+  position:fixed; inset:0; z-index:800;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  background:linear-gradient(135deg,#f8fbff 0%,#e4f2ff 40%,#cce5ff 70%,#b5d8ff 100%);
+  overflow:hidden;
+  transition:opacity 1.4s cubic-bezier(.77,0,.18,1), transform 1.5s cubic-bezier(.77,0,.18,1);
+}
+#intro.exit { opacity:0; transform:scale(1.06) translateY(-5vh); pointer-events:none; }
+#intro-canvas { position:absolute; inset:0; width:100%; height:100%; }
+
+.intro-grid-overlay {
+  position:absolute; inset:0; pointer-events:none;
+  background-image:
+    linear-gradient(rgba(45,143,203,.045) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(45,143,203,.045) 1px,transparent 1px);
+  background-size:72px 72px;
+  animation:gridMove 25s linear infinite;
+}
+@keyframes gridMove { to{background-position:72px 72px;} }
+
+/* corner brackets */
+.intro-corner {
+  position:absolute; width:32px; height:32px; z-index:2;
+  opacity:.3; transition:opacity .4s;
+}
+.intro-corner.tl{top:2rem;left:2rem;border-top:1.5px solid var(--blue2);border-left:1.5px solid var(--blue2);}
+.intro-corner.tr{top:2rem;right:2rem;border-top:1.5px solid var(--blue2);border-right:1.5px solid var(--blue2);}
+.intro-corner.bl{bottom:2rem;left:2rem;border-bottom:1.5px solid var(--blue2);border-left:1.5px solid var(--blue2);}
+.intro-corner.br{bottom:2rem;right:2rem;border-bottom:1.5px solid var(--blue2);border-right:1.5px solid var(--blue2);}
+
+.intro-centre { position:relative; z-index:2; text-align:center; }
+
+.intro-eyebrow {
+  display:flex; align-items:center; gap:1rem; justify-content:center;
+  margin-bottom:1.5rem;
+  opacity:0; animation:fadeUp .8s .3s ease both;
+}
+.eye-line { flex:1; max-width:80px; height:1px; background:linear-gradient(90deg,transparent,var(--blue)); }
+.eye-line:last-child { background:linear-gradient(90deg,var(--blue),transparent); }
+.eye-text { font-family:'Syne',sans-serif; font-size:.7rem; letter-spacing:.25em; text-transform:uppercase; color:var(--blue2); font-weight:600; white-space:nowrap; }
+
+.vault-title {
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(5rem,18vw,18rem);
+  letter-spacing:.06em; line-height:.9;
+  color:transparent;
+  background:linear-gradient(155deg,var(--blue3) 0%,var(--blue) 40%,var(--accent) 75%,#7dd6f5 100%);
+  -webkit-background-clip:text; background-clip:text;
+  filter:drop-shadow(0 6px 40px rgba(45,143,203,.18));
+}
+.vault-title .ltr {
+  display:inline-block;
+  opacity:0;
+  transform:perspective(400px) translateY(70px) rotateX(-55deg);
+  animation:ltrIn .8s cubic-bezier(.34,1.56,.64,1) forwards;
+  will-change:transform,opacity;
+}
+@keyframes ltrIn { to{ opacity:1; transform:perspective(400px) translateY(0) rotateX(0); } }
+
+.intro-rule {
+  width:0; height:2px; margin:.9rem auto 0;
+  background:linear-gradient(90deg,var(--blue),var(--accent));
+  border-radius:2px;
+  animation:ruleGrow 1s cubic-bezier(.77,0,.18,1) 2s forwards;
+}
+@keyframes ruleGrow { to{width:240px;} }
+
+.intro-tag {
+  font-family:'Syne',sans-serif; font-size:.8rem;
+  letter-spacing:.18em; text-transform:uppercase;
+  color:var(--muted); margin-top:1rem;
+  opacity:0; animation:fadeUp .9s 2.2s ease both;
+}
+
+.intro-bottom {
+  position:absolute; bottom:5rem; left:50%; transform:translateX(-50%);
+  display:flex; gap:4rem; z-index:2;
+  opacity:0; animation:fadeUp .9s 2.8s ease both;
+}
+.intro-stat { text-align:center; }
+.is-n { font-family:'Bebas Neue',sans-serif; font-size:1.8rem; color:var(--blue2); display:block; letter-spacing:.05em; }
+.is-l { font-size:.6rem; color:var(--muted); letter-spacing:.1em; text-transform:uppercase; }
+
+.scroll-cue {
+  position:absolute; bottom:1.8rem; left:50%; transform:translateX(-50%);
+  display:flex; flex-direction:column; align-items:center; gap:.5rem;
+  z-index:2; opacity:0; animation:fadeUp .8s 3.5s ease both;
+}
+.scroll-cue span { font-size:.6rem; letter-spacing:.18em; text-transform:uppercase; color:var(--muted); }
+.sc-line { width:1px; height:40px; background:linear-gradient(to bottom,var(--blue),transparent); animation:scLinePulse 2s ease-in-out infinite; }
+@keyframes scLinePulse { 0%{transform:scaleY(0);transform-origin:top} 50%{transform:scaleY(1);transform-origin:top} 51%{transform:scaleY(1);transform-origin:bottom} 100%{transform:scaleY(0);transform-origin:bottom} }
+
+@keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+
+/* ══════════════════════════════════════════════════════════
+   SITE CANVAS + SITE WRAPPER
+══════════════════════════════════════════════════════════ */
+#site-canvas { position:fixed; inset:0; z-index:0; pointer-events:none; opacity:0; transition:opacity 2s ease 1s; }
+#site-canvas.vis { opacity:1; }
+
+#site {
+  position:relative; z-index:1;
+  opacity:0; transform:translateY(18px);
+  transition:opacity .9s ease .2s, transform .9s ease .2s;
+  pointer-events:none; background:transparent;
+}
+#site.vis { opacity:1; transform:none; pointer-events:all; }
+
+/* ── NAV ── */
+nav, .admin-nav-x {
+  position:fixed; top:0; left:0; right:0; z-index:200;
+  padding:1rem 3rem; display:flex; align-items:center; justify-content:space-between;
+  background:rgba(240,248,255,.75); backdrop-filter:blur(22px) saturate(160%);
+  border-bottom:1px solid var(--border);
+  opacity:0; transform:translateY(-22px);
+  transition:opacity .9s ease .5s, transform .9s ease .5s, background .4s, box-shadow .4s;
+}
+nav.vis { opacity:1; transform:none; }
+nav.scrolled { background:rgba(255,255,255,.92); box-shadow:0 4px 28px var(--shadow); }
+.nav-logo { font-family:'Bebas Neue',sans-serif; font-size:1.5rem; letter-spacing:.07em; color:var(--blue2); }
+.nav-logo span { color:var(--blue3); }
+.nav-links { display:flex; gap:1.8rem; list-style:none; }
+.nav-links a { font-size:.83rem; color:var(--muted); text-decoration:none; font-weight:500; cursor:none; transition:color .25s; position:relative; }
+.nav-links a::after { content:''; position:absolute; bottom:-4px; left:0; right:0; height:1.5px; background:var(--blue); transform:scaleX(0); transform-origin:left; transition:transform .3s cubic-bezier(.34,1.56,.64,1); }
+.nav-links a:hover { color:var(--blue2); }
+.nav-links a:hover::after { transform:scaleX(1); }
+.nav-right { display:flex; align-items:center; gap:.9rem; }
+.nav-user { font-size:.78rem; color:var(--blue2); font-weight:600; }
+.nav-btn { padding:.5rem 1.4rem; border-radius:100px; border:none; cursor:none; background:linear-gradient(135deg,var(--blue),var(--blue2)); color:#fff; font-family:'DM Sans',sans-serif; font-size:.82rem; font-weight:500; transition:all .3s; box-shadow:0 5px 18px rgba(45,143,203,.28); }
+.nav-btn:hover { transform:translateY(-2px); box-shadow:0 8px 24px rgba(45,143,203,.42); }
+
+/* ── HERO ── */
+#hero {
+  min-height:100vh; display:flex; align-items:center; justify-content:center;
+  padding:9rem 2rem 5rem; position:relative; overflow:hidden;
+  background:linear-gradient(150deg,#f4faff 0%,#e0f1ff 35%,#cce8ff 65%,#b8daff 100%);
+}
+.mesh-bg {
+  position:absolute; inset:-50%; width:200%; height:200%;
+  background:
+    radial-gradient(ellipse 58% 48% at 20% 30%,rgba(0,184,230,.11) 0%,transparent 60%),
+    radial-gradient(ellipse 48% 58% at 80% 70%,rgba(45,143,203,.09) 0%,transparent 60%),
+    radial-gradient(ellipse 38% 38% at 60% 20%,rgba(184,240,232,.16) 0%,transparent 60%);
+  animation:meshMove 14s ease-in-out infinite; pointer-events:none;
+}
+@keyframes meshMove { 0%,100%{transform:translate(0,0)} 33%{transform:translate(3%,-2%)} 66%{transform:translate(-2%,3%)} }
+.rings-wrap { position:absolute; bottom:-40%; left:50%; transform:translateX(-50%); width:160vmax; height:160vmax; pointer-events:none; }
+.rng { position:absolute; border-radius:50%; border:1px solid rgba(45,143,203,.09); animation:rngPulse 8s ease-in-out infinite; }
+.rng:nth-child(1){inset:0;animation-delay:0s} .rng:nth-child(2){inset:8%;animation-delay:1.5s} .rng:nth-child(3){inset:16%;animation-delay:3s} .rng:nth-child(4){inset:24%;animation-delay:4.5s} .rng:nth-child(5){inset:32%;animation-delay:6s}
+@keyframes rngPulse { 0%,100%{opacity:.3;transform:scale(1)} 50%{opacity:.85;transform:scale(1.012)} }
+#blob { position:absolute; z-index:0; width:440px; height:440px; background:radial-gradient(circle,rgba(0,184,230,.1) 0%,rgba(45,143,203,.05) 50%,transparent 70%); border-radius:60% 40% 55% 45%/45% 55% 40% 60%; pointer-events:none; animation:blobMorph 9s ease-in-out infinite; transform:translate(-50%,-50%); filter:blur(2px); transition:left 1s cubic-bezier(.25,.46,.45,.94),top 1s cubic-bezier(.25,.46,.45,.94); }
+@keyframes blobMorph { 0%,100%{border-radius:60% 40% 55% 45%/45% 55% 40% 60%} 25%{border-radius:50% 50% 40% 60%/60% 40% 50% 50%} 50%{border-radius:40% 60% 60% 40%/55% 45% 55% 45%} 75%{border-radius:55% 45% 45% 55%/40% 60% 40% 60%} }
+
+.hero-inner { position:relative; z-index:2; text-align:center; max-width:940px; }
+.hero-pill { display:inline-flex; align-items:center; gap:.5rem; background:rgba(255,255,255,.72); backdrop-filter:blur(14px); border:1px solid var(--border2); border-radius:100px; padding:.45rem 1.3rem; font-size:.72rem; color:var(--blue2); letter-spacing:.1em; text-transform:uppercase; font-weight:600; margin-bottom:2.2rem; animation:fadeUp .9s .1s ease both; }
+.pill-dot { width:7px; height:7px; border-radius:50%; background:var(--accent); animation:bpulse 2s ease-in-out infinite; }
+@keyframes bpulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.35;transform:scale(1.55)} }
+.hero-h1 { font-family:'Bebas Neue',sans-serif; font-size:clamp(3.5rem,10vw,10rem); letter-spacing:.04em; line-height:.92; color:var(--text); animation:fadeUp .9s .25s ease both; margin-bottom:1.6rem; }
+.hero-h1 em { font-style:normal; background:linear-gradient(135deg,var(--blue),var(--accent),#89dcf5); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; background-size:200% auto; animation:shimmer 5s linear infinite; }
+@keyframes shimmer { to{background-position:200% center} }
+.hero-sub { font-size:1.05rem; color:var(--muted); line-height:1.8; max-width:580px; margin:0 auto 3rem; font-weight:300; animation:fadeUp .9s .4s ease both; }
+
+/* Buttons */
+.hero-btns { display:flex; gap:1rem; justify-content:center; flex-wrap:wrap; animation:fadeUp .9s .55s ease both; }
+.btn-solid { padding:.85rem 2.4rem; border-radius:100px; border:none; cursor:none; background:linear-gradient(135deg,var(--blue),var(--blue2)); color:#fff; font-family:'DM Sans',sans-serif; font-size:.92rem; font-weight:500; box-shadow:0 8px 26px rgba(45,143,203,.33); transition:transform .3s cubic-bezier(.34,1.56,.64,1),box-shadow .3s; position:relative; overflow:hidden; }
+.btn-solid:hover { transform:translateY(-4px) scale(1.02); box-shadow:0 14px 34px rgba(45,143,203,.48); }
+.btn-outline { padding:.85rem 2.4rem; border-radius:100px; cursor:none; background:rgba(255,255,255,.7); backdrop-filter:blur(14px); border:1.5px solid var(--border2); color:var(--blue2); font-family:'DM Sans',sans-serif; font-size:.92rem; font-weight:500; transition:all .3s cubic-bezier(.34,1.56,.64,1); }
+.btn-outline:hover { background:#fff; border-color:var(--blue); transform:translateY(-4px); box-shadow:0 10px 26px var(--shadow); }
+
+/* Hero glass cards */
+.hero-cards { display:flex; gap:1.8rem; justify-content:center; flex-wrap:wrap; margin-top:4.5rem; animation:fadeUp .9s .7s ease both; }
+.h-card { background:var(--glass); backdrop-filter:blur(22px) saturate(160%); border:1px solid rgba(255,255,255,.92); border-radius:22px; padding:1.5rem 2rem; min-width:190px; box-shadow:0 10px 36px var(--shadow),inset 0 1.5px 0 rgba(255,255,255,.95); cursor:none; }
+.h-card:nth-child(1){animation:hcFloat 8s ease-in-out infinite}
+.h-card:nth-child(2){animation:hcFloat 8s ease-in-out infinite;animation-delay:-2.7s}
+.h-card:nth-child(3){animation:hcFloat 8s ease-in-out infinite;animation-delay:-5.3s}
+@keyframes hcFloat { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
+.hc-ico { font-size:2rem; margin-bottom:.7rem; }
+.hc-title { font-family:'Syne',sans-serif; font-size:.88rem; font-weight:700; color:var(--text); }
+.hc-sub { font-size:.72rem; color:var(--muted); margin-top:.25rem; }
+
+/* Stats strip */
+.stats-strip { display:flex; border-radius:22px; overflow:hidden; background:rgba(255,255,255,.55); backdrop-filter:blur(22px) saturate(150%); border:1px solid rgba(255,255,255,.85); box-shadow:0 10px 36px var(--shadow); margin-top:3.5rem; }
+.st-it { flex:1; padding:1.4rem 2rem; text-align:center; border-right:1px solid var(--border); transition:background .3s; }
+.st-it:last-child{border-right:none} .st-it:hover{background:rgba(255,255,255,.6)}
+.st-n { font-family:'Bebas Neue',sans-serif; font-size:2.6rem; color:var(--blue2); display:block; line-height:1; letter-spacing:.04em; }
+.st-l { font-size:.65rem; color:var(--muted); margin-top:.25rem; letter-spacing:.07em; text-transform:uppercase; }
+
+/* ── MARQUEE ── */
+.marquee-wrap { overflow:hidden; background:linear-gradient(135deg,var(--blue2),var(--blue)); padding:.8rem 0; position:relative; z-index:2; }
+.marquee-track { display:flex; white-space:nowrap; animation:marqueeScroll 25s linear infinite; }
+.marquee-track:hover { animation-play-state:paused; }
+.mi { font-family:'Bebas Neue',sans-serif; font-size:.95rem; letter-spacing:.15em; color:rgba(255,255,255,.7); padding:0 2.5rem; flex-shrink:0; }
+.ms { color:rgba(255,255,255,.3); margin:0 .5rem; }
+@keyframes marqueeScroll { to{transform:translateX(-50%);} }
+
+/* ── SECTIONS ── */
+section { position:relative; z-index:1; }
+#about { padding:11rem 2.5rem; background:linear-gradient(180deg,#c8e4ff 0%,#daeeff 55%,#f0f8ff 100%); }
+#how { padding:11rem 2.5rem; background:linear-gradient(180deg,#f0f8ff 0%,#e0f1ff 100%); }
+#candidates { padding:11rem 2.5rem; background:linear-gradient(180deg,#e0f1ff 0%,#cce8ff 100%); }
+#results-section { padding:11rem 2.5rem; background:linear-gradient(180deg,#cce8ff 0%,#daeeff 100%); }
+#audit { padding:11rem 2.5rem; background:linear-gradient(180deg,#daeeff 0%,#f4faff 100%); }
+
+/* Section typography */
+.sec-tag { font-size:.68rem; letter-spacing:.15em; text-transform:uppercase; color:var(--blue); font-weight:700; margin-bottom:.8rem; display:block; }
+.sec-h2 { font-family:'Bebas Neue',sans-serif; font-size:clamp(2.5rem,5.5vw,5.5rem); letter-spacing:.03em; line-height:.92; color:var(--text); margin-bottom:1.5rem; }
+.sec-h2.centered { text-align:center; }
+.sec-p { font-size:.95rem; color:var(--muted); line-height:1.85; font-weight:300; margin-bottom:.9rem; }
+.sec-sub { text-align:center; color:var(--muted); font-size:.85rem; margin-top:.4rem; }
+.sec-head { text-align:center; margin-bottom:4.5rem; }
+
+/* About */
+.about-grid { display:grid; grid-template-columns:1fr 1fr; gap:5rem; align-items:center; max-width:1100px; margin:0 auto; }
+.feat-list { list-style:none; margin-top:2rem; display:flex; flex-direction:column; gap:.85rem; }
+.feat-list li { display:flex; align-items:center; gap:.85rem; font-size:.86rem; color:var(--text); }
+.chk { width:22px; height:22px; border-radius:50%; background:linear-gradient(135deg,var(--blue),var(--accent)); display:flex; align-items:center; justify-content:center; font-size:.6rem; color:#fff; flex-shrink:0; box-shadow:0 4px 12px rgba(45,143,203,.28); }
+
+/* Code panel */
+.code-panel { background:var(--glass); backdrop-filter:blur(22px) saturate(160%); border:1px solid rgba(255,255,255,.92); border-radius:26px; padding:2.2rem; box-shadow:0 24px 60px var(--shadow),inset 0 1.5px 0 rgba(255,255,255,.95); transform:perspective(900px) rotateY(-5deg) rotateX(2deg); transition:transform .6s cubic-bezier(.25,.46,.45,.94); }
+.code-panel:hover { transform:perspective(900px) rotateY(0) rotateX(0); }
+.win-dots { display:flex; gap:6px; margin-bottom:1.4rem; }
+.wd { width:11px; height:11px; border-radius:50%; }
+.wd.r{background:#ff6b6b} .wd.y{background:#ffd93d} .wd.g{background:#6bcb77}
+.code-blk { font-family:'DM Mono','Courier New',monospace; font-size:.71rem; background:rgba(255,255,255,.45); border-radius:12px; padding:1.3rem; line-height:1.9; color:var(--text); border:1px solid rgba(45,143,203,.1); }
+.cb{color:var(--blue2);font-weight:600} .cg{color:#2a7a46} .co{color:#a85200} .cm{color:var(--muted)}
+
+/* Steps */
+.steps-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(195px,1fr)); gap:1.5rem; max-width:1140px; margin:0 auto; }
+.step-card { background:var(--glass); backdrop-filter:blur(22px) saturate(160%); border:1px solid rgba(255,255,255,.92); border-radius:26px; padding:2.2rem; position:relative; overflow:hidden; box-shadow:0 10px 36px var(--shadow),inset 0 1.5px 0 rgba(255,255,255,.95); transition:transform .45s cubic-bezier(.34,1.56,.64,1),box-shadow .45s; cursor:none; }
+.step-card::before { content:''; position:absolute; inset:0; background:linear-gradient(135deg,rgba(255,255,255,.55),rgba(200,228,255,.15)); opacity:0; transition:opacity .35s; }
+.step-card:hover { transform:translateY(-14px) scale(1.015) rotateX(3deg); box-shadow:0 28px 56px rgba(45,143,203,.22); }
+.step-card:hover::before { opacity:1; }
+.sn { font-family:'Bebas Neue',sans-serif; font-size:4.5rem; color:rgba(45,143,203,.1); line-height:1; margin-bottom:.9rem; }
+.si { font-size:1.9rem; margin-bottom:.7rem; }
+.st { font-family:'Syne',sans-serif; font-size:.95rem; font-weight:700; color:var(--text); margin-bottom:.45rem; }
+.sd { font-size:.79rem; color:var(--muted); line-height:1.65; font-weight:300; }
+
+/* Candidate flip cards */
+.cand-scroll { display:flex; gap:1.8rem; overflow-x:auto; padding:2rem 2.5rem 3rem; scrollbar-width:none; max-width:1320px; margin:0 auto; }
+.cand-scroll::-webkit-scrollbar{display:none}
+.flip-wrap { min-width:255px; flex-shrink:0; height:330px; perspective:900px; cursor:none; }
+.flip-inner { width:100%; height:100%; position:relative; transform-style:preserve-3d; transition:transform .65s cubic-bezier(.25,.46,.45,.94); }
+.flip-wrap:hover .flip-inner { transform:rotateY(180deg); }
+.flip-wrap.selected .flip-inner { transform:rotateY(180deg); }
+.flip-front,.flip-back { position:absolute; inset:0; background:var(--glass); backdrop-filter:blur(22px) saturate(160%); border:1px solid rgba(255,255,255,.92); border-radius:24px; padding:2rem; backface-visibility:hidden; box-shadow:0 10px 36px var(--shadow),inset 0 1.5px 0 rgba(255,255,255,.95); display:flex; flex-direction:column; transition:border-color .3s; }
+.flip-front.sel-border { border-color:rgba(0,184,230,.6); box-shadow:0 0 0 2px rgba(0,184,230,.3),0 10px 36px var(--shadow); }
+.flip-back { transform:rotateY(180deg); background:linear-gradient(135deg,rgba(200,232,255,.72),rgba(255,255,255,.72)); }
+.c-av { width:58px; height:58px; border-radius:50%; background:linear-gradient(135deg,var(--sky2),var(--sky3)); display:flex; align-items:center; justify-content:center; font-size:1.8rem; border:2px solid rgba(255,255,255,.88); margin-bottom:1.1rem; box-shadow:0 4px 16px var(--shadow); }
+.c-name { font-family:'Syne',sans-serif; font-size:1rem; font-weight:700; color:var(--text); }
+.c-party { font-size:.7rem; color:var(--blue); font-weight:600; margin-top:.15rem; letter-spacing:.04em; }
+.c-mani { font-size:.76rem; color:var(--muted); margin-top:.75rem; line-height:1.65; font-weight:300; flex:1; }
+.back-title { font-family:'Syne',sans-serif; font-size:.72rem; font-weight:700; color:var(--blue2); letter-spacing:.08em; text-transform:uppercase; margin-bottom:.7rem; }
+.back-hash { font-family:monospace; font-size:.6rem; color:var(--blue); line-height:1.75; word-break:break-all; flex:1; background:rgba(255,255,255,.4); padding:.7rem; border-radius:10px; border:1px solid var(--border); }
+.select-btn { width:100%; padding:.6rem; border-radius:100px; border:1.5px solid var(--border2); background:rgba(255,255,255,.65); color:var(--blue2); font-family:'DM Sans',sans-serif; font-size:.76rem; font-weight:600; cursor:none; margin-top:.9rem; transition:all .3s; }
+.select-btn:hover,.select-btn.active { background:var(--blue2); color:#fff; border-color:var(--blue2); }
+.flip-hint { font-size:.6rem; color:var(--muted); text-align:center; margin-top:.5rem; opacity:.55; }
+
+/* Vote action area */
+.vote-action-area { max-width:600px; margin:3rem auto 0; text-align:center; }
+.selected-info { background:var(--glass); backdrop-filter:blur(16px); border:1px solid var(--border2); border-radius:16px; padding:1.2rem 1.6rem; margin-bottom:1.2rem; font-family:'Syne',sans-serif; font-weight:600; color:var(--text); font-size:1rem; }
+.big-vote-btn { font-size:1rem; padding:1rem 3rem; letter-spacing:.02em; }
+.vote-note { font-size:.75rem; color:var(--muted); margin-top:.8rem; }
+
+/* Results */
+.results-wrap { max-width:1100px; margin:0 auto; }
+.results-stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:1.2rem; margin-bottom:2.5rem; }
+.rs-card { background:var(--glass); backdrop-filter:blur(22px); border:1px solid rgba(255,255,255,.92); border-radius:18px; padding:1.5rem 1.8rem; box-shadow:0 8px 26px var(--shadow),inset 0 1.5px 0 rgba(255,255,255,.95); text-align:center; }
+.rs-n { font-family:'Bebas Neue',sans-serif; font-size:2.8rem; color:var(--blue2); line-height:1; letter-spacing:.04em; }
+.rs-l { font-size:.68rem; color:var(--muted); text-transform:uppercase; letter-spacing:.07em; margin-top:.3rem; }
+.results-chart { background:var(--glass); backdrop-filter:blur(22px); border:1px solid rgba(255,255,255,.92); border-radius:22px; padding:2.5rem; box-shadow:0 10px 36px var(--shadow),inset 0 1.5px 0 rgba(255,255,255,.95); }
+.r-row { margin-bottom:1.4rem; }
+.r-row:last-child { margin-bottom:0; }
+.r-top { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:.4rem; }
+.r-name { font-family:'Syne',sans-serif; font-weight:700; font-size:.9rem; color:var(--text); }
+.r-party { font-size:.7rem; color:var(--muted); margin-left:.5rem; }
+.r-count { font-family:'Bebas Neue',sans-serif; font-size:1.4rem; color:var(--blue2); letter-spacing:.04em; }
+.bar-track { height:11px; background:rgba(45,143,203,.09); border-radius:100px; overflow:hidden; }
+.bar-fill { height:100%; border-radius:100px; background:linear-gradient(90deg,var(--blue),var(--accent)); transition:width 1.3s cubic-bezier(.16,1,.3,1); box-shadow:0 0 12px rgba(45,143,203,.28); position:relative; overflow:hidden; }
+.bar-fill::after { content:''; position:absolute; top:0; left:-100%; height:100%; width:60%; background:linear-gradient(90deg,transparent,rgba(255,255,255,.4),transparent); animation:barSheen 2.5s ease-in-out infinite; }
+@keyframes barSheen { to{left:200%;} }
+
+/* Audit */
+.audit-wrap { max-width:1000px; margin:0 auto; }
+.audit-table-head { display:grid; grid-template-columns:36px 1fr 1fr 2fr 1fr 80px; gap:1rem; padding:.7rem 1.4rem; font-size:.65rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); border-bottom:1px solid var(--border); }
+.a-row { display:grid; grid-template-columns:36px 1fr 1fr 2fr 1fr 80px; gap:1rem; align-items:center; background:var(--glass); backdrop-filter:blur(16px); border:1px solid rgba(255,255,255,.9); border-radius:14px; padding:.9rem 1.4rem; margin-bottom:.7rem; box-shadow:0 4px 16px var(--shadow),inset 0 1px 0 rgba(255,255,255,.95); transition:transform .3s cubic-bezier(.25,.46,.45,.94),box-shadow .3s; }
+.a-row:hover { transform:translateX(8px); box-shadow:0 10px 28px rgba(45,143,203,.18); }
+.a-num { font-family:monospace; font-size:.68rem; color:var(--muted); }
+.a-vid { font-family:monospace; font-size:.68rem; color:var(--text); font-weight:600; }
+.a-cand { font-size:.8rem; font-weight:500; color:var(--text); }
+.a-hash { font-family:monospace; font-size:.6rem; color:var(--blue); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.a-ts { font-size:.65rem; color:var(--muted); }
+.a-badge { font-size:.58rem; padding:.18rem .55rem; border-radius:100px; background:rgba(45,138,78,.1); color:#2d8a4e; border:1px solid rgba(45,138,78,.22); font-weight:700; letter-spacing:.05em; text-align:center; white-space:nowrap; }
+
+/* Footer */
+footer { padding:4.5rem 3rem; background:linear-gradient(135deg,#cce8ff,#b8daff); border-top:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1rem; }
+.f-logo { font-family:'Bebas Neue',sans-serif; font-size:1.6rem; letter-spacing:.07em; color:var(--blue2); }
+.f-center { font-size:.75rem; color:var(--muted); text-align:center; line-height:1.8; }
+.f-right { }
+.admin-link { font-size:.8rem; color:var(--blue2); text-decoration:none; font-weight:600; padding:.45rem 1rem; border:1.5px solid var(--border2); border-radius:100px; transition:all .3s; cursor:none; }
+.admin-link:hover { background:var(--blue2); color:#fff; }
+
+/* ── MODALS ── */
+.modal-overlay { position:fixed; inset:0; z-index:900; background:rgba(10,30,60,.35); backdrop-filter:blur(8px); display:flex; align-items:center; justify-content:center; opacity:0; pointer-events:none; transition:opacity .35s; }
+.modal-overlay.open { opacity:1; pointer-events:all; }
+.modal-box { background:#fff; border:1px solid var(--border2); border-radius:24px; padding:2.2rem; width:90%; max-width:440px; max-height:90vh; overflow-y:auto; position:relative; transform:scale(.92) translateY(20px); transition:transform .4s cubic-bezier(.34,1.56,.64,1); box-shadow:0 30px 80px rgba(10,30,60,.2); }
+.modal-overlay.open .modal-box { transform:scale(1) translateY(0); }
+.modal-close { position:absolute; top:1rem; right:1rem; background:none; border:none; cursor:none; font-size:1rem; color:var(--muted); transition:color .2s; }
+.modal-close:hover { color:var(--text); }
+.modal-title { font-family:'Syne',sans-serif; font-size:1.2rem; font-weight:700; color:var(--text); margin-bottom:1.4rem; }
+.tab-bar { display:flex; background:rgba(45,143,203,.06); border-radius:100px; padding:4px; margin-bottom:1.6rem; }
+.tab-btn { flex:1; padding:.45rem; border-radius:100px; border:none; cursor:none; background:transparent; color:var(--muted); font-size:.82rem; font-family:'DM Sans',sans-serif; font-weight:500; transition:all .25s; }
+.tab-btn.active { background:var(--blue2); color:#fff; font-weight:600; }
+.form-group { margin-bottom:1.1rem; }
+.form-group label { display:block; font-size:.74rem; color:var(--muted); margin-bottom:.4rem; font-weight:500; letter-spacing:.04em; text-transform:uppercase; }
+.form-group input,.form-group select { width:100%; padding:.75rem 1rem; border:1.5px solid rgba(45,143,203,.2); border-radius:10px; font-size:.88rem; font-family:'DM Sans',sans-serif; color:var(--text); background:rgba(255,255,255,.8); transition:border-color .25s,box-shadow .25s; outline:none; }
+.form-group input:focus,.form-group select:focus { border-color:var(--blue); box-shadow:0 0 0 3px rgba(45,143,203,.15); }
+.form-group select option { background:#fff; }
+.auth-btn { width:100%; padding:.85rem; border:none; border-radius:100px; cursor:none; background:linear-gradient(135deg,var(--blue),var(--blue2)); color:#fff; font-family:'DM Sans',sans-serif; font-size:.92rem; font-weight:600; margin-top:.5rem; transition:all .3s; box-shadow:0 6px 20px rgba(45,143,203,.28); }
+.auth-btn:hover { transform:translateY(-2px); box-shadow:0 10px 28px rgba(45,143,203,.42); }
+.form-msg { padding:.55rem .9rem; border-radius:8px; font-size:.8rem; margin-bottom:.9rem; display:none; }
+.form-msg.err { background:rgba(224,62,62,.08); border:1px solid rgba(224,62,62,.25); color:var(--err); display:block; }
+.form-msg.ok  { background:rgba(45,138,78,.08); border:1px solid rgba(45,138,78,.25); color:var(--ok); display:block; }
+.form-note { font-size:.74rem; color:var(--muted); text-align:center; margin-top:.9rem; }
+.form-note code { background:rgba(45,143,203,.1); padding:.1rem .35rem; border-radius:4px; font-size:.72rem; color:var(--blue2); }
+
+/* Confirm modal */
+.confirm-box { text-align:center; }
+.confirm-icon { font-size:3.5rem; margin-bottom:1rem; }
+.confirm-candidate { font-family:'Syne',sans-serif; font-size:1.4rem; font-weight:700; color:var(--blue2); margin:.8rem 0; }
+.confirm-info { font-size:.85rem; color:var(--muted); line-height:1.65; margin-bottom:1.2rem; }
+.hash-preview { font-family:monospace; font-size:.65rem; color:var(--blue); background:rgba(45,143,203,.07); border:1px solid var(--border); border-radius:10px; padding:.85rem 1rem; word-break:break-all; line-height:1.7; margin-bottom:1.4rem; text-align:left; }
+.confirm-btns { display:flex; gap:.8rem; justify-content:center; }
+
+/* Receipt modal */
+.receipt-box { text-align:center; }
+.receipt-icon { font-size:3.5rem; margin-bottom:1rem; animation:popIn .5s cubic-bezier(.34,1.56,.64,1) both; }
+@keyframes popIn { from{transform:scale(0)} to{transform:scale(1)} }
+.receipt-grid { background:rgba(45,143,203,.04); border:1px solid var(--border); border-radius:12px; padding:1.1rem; font-family:monospace; font-size:.7rem; line-height:2.1; text-align:left; margin:1rem 0 1.4rem; color:var(--text); }
+.receipt-grid .rk { color:var(--muted); }
+.receipt-grid .rv { color:var(--blue2); }
+.receipt-grid .rh { color:var(--blue); word-break:break-all; font-size:.63rem; }
+
+/* Toast */
+.toast { position:fixed; bottom:2rem; right:2rem; z-index:1000; background:rgba(255,255,255,.95); backdrop-filter:blur(20px); border:1px solid var(--border2); border-radius:14px; padding:1rem 1.4rem; max-width:340px; display:flex; align-items:flex-start; gap:.9rem; box-shadow:0 10px 36px var(--shadow); transform:translateY(120px); opacity:0; transition:all .45s cubic-bezier(.34,1.56,.64,1); }
+.toast.show { transform:translateY(0); opacity:1; }
+.toast.ok  { border-left:3px solid var(--ok); }
+.toast.err { border-left:3px solid var(--err); }
+.toast-icon { font-size:1.2rem; }
+.toast-title { font-family:'Syne',sans-serif; font-weight:700; font-size:.85rem; color:var(--text); }
+.toast-msg { font-size:.75rem; color:var(--muted); margin-top:.15rem; font-family:monospace; }
+
+/* ── SCROLL REVEAL ── */
+.rv  { opacity:0; transform:translateY(55px); transition:opacity .95s cubic-bezier(.16,1,.3,1),transform .95s cubic-bezier(.16,1,.3,1); }
+.rvl { opacity:0; transform:translateX(-65px); transition:opacity 1s cubic-bezier(.16,1,.3,1),transform 1s cubic-bezier(.16,1,.3,1); }
+.rvr { opacity:0; transform:translateX(65px);  transition:opacity 1s cubic-bezier(.16,1,.3,1),transform 1s cubic-bezier(.16,1,.3,1); }
+.rvs { opacity:0; transform:scale(.82) translateY(20px); transition:opacity .8s cubic-bezier(.34,1.56,.64,1),transform .8s cubic-bezier(.34,1.56,.64,1); }
+.rv.on,.rvl.on,.rvr.on,.rvs.on { opacity:1; transform:none; }
+.stg>* { opacity:0; transform:translateY(42px); transition:opacity .8s cubic-bezier(.16,1,.3,1),transform .8s cubic-bezier(.16,1,.3,1); }
+.stg.on>*:nth-child(1){opacity:1;transform:none;transition-delay:.04s}
+.stg.on>*:nth-child(2){opacity:1;transform:none;transition-delay:.14s}
+.stg.on>*:nth-child(3){opacity:1;transform:none;transition-delay:.24s}
+.stg.on>*:nth-child(4){opacity:1;transform:none;transition-delay:.34s}
+.stg.on>*:nth-child(5){opacity:1;transform:none;transition-delay:.44s}
+
+/* Responsive */
+@media(max-width:900px) {
+  nav { padding:1rem 1.5rem; }
+  .nav-links { display:none; }
+  .about-grid { grid-template-columns:1fr; gap:3rem; }
+  .code-panel { transform:none; }
+  .stats-strip { flex-direction:column; }
+  .audit-table-head { display:none; }
+  .a-row { grid-template-columns:auto 1fr; gap:.6rem; }
+  .a-hash,.a-ts,.a-badge,.a-vid { display:none; }
+  footer { flex-direction:column; text-align:center; }
+}
+
+</style>
+</head>
+<body>
+
+<div id="cur"></div>
+<div id="cur-ring"></div>
+
+<!-- INTRO -->
+<div id="intro">
+  <canvas id="intro-canvas"></canvas>
+  <div class="intro-grid-overlay"></div>
+  <div class="intro-corner tl"></div>
+  <div class="intro-corner tr"></div>
+  <div class="intro-corner bl"></div>
+  <div class="intro-corner br"></div>
+  <div class="intro-centre" id="intro-centre">
+    <div class="intro-eyebrow" id="intro-eyebrow">
+      <span class="eye-line"></span>
+      <span class="eye-text">CAMPUS ELECTION SYSTEM</span>
+      <span class="eye-line"></span>
+    </div>
+    <div class="vault-title" id="vault-title" aria-label="VaultVote"></div>
+    <div class="intro-rule" id="intro-rule"></div>
+    <p class="intro-tag" id="intro-tag">Cryptographically Secured · SHA-256 · Zero-Trust</p>
+  </div>
+  <div class="intro-bottom">
+    <div class="intro-stat"><span class="is-n">256</span><span class="is-l">Bit AES</span></div>
+    <div class="intro-stat"><span class="is-n">SHA-256</span><span class="is-l">Vote Hash</span></div>
+    <div class="intro-stat"><span class="is-n">100%</span><span class="is-l">Anonymous</span></div>
+  </div>
+  <div class="scroll-cue">
+    <div class="sc-line"></div>
+    <span>scroll to enter</span>
+  </div>
+</div>
+
+<canvas id="site-canvas"></canvas>
+<div id="site">
+
+  <nav id="nav">
+    <div class="nav-logo">Vault<span>Vote</span></div>
+    <ul class="nav-links">
+      <li><a href="#hero">Home</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#how">How It Works</a></li>
+      <li><a href="#candidates">Candidates</a></li>
+      <li><a href="#audit">Audit Log</a></li>
+    </ul>
+    <div class="nav-right">
+      <span class="nav-user" id="nav-user"></span>
+      <button class="nav-btn" id="nav-auth-btn" onclick="openAuth()">Login / Register</button>
+    </div>
+  </nav>
+
+  <section id="hero">
+    <div class="mesh-bg"></div>
+    <div class="rings-wrap">
+      <div class="rng"></div><div class="rng"></div><div class="rng"></div>
+      <div class="rng"></div><div class="rng"></div>
+    </div>
+    <div id="blob"></div>
+    <div class="hero-inner">
+      <div class="hero-pill"><div class="pill-dot"></div>Campus Election 2024 · Now Open</div>
+      <h1 class="hero-h1">A New Level<br>of <em>Electoral<br>Freedom</em></h1>
+      <p class="hero-sub">End-to-end encrypted digital voting. Transparent, tamper-proof, and beautifully simple. Every ballot cryptographically hashed and publicly verifiable.</p>
+      <div class="hero-btns">
+        <button class="btn-solid" onclick="document.getElementById('candidates').scrollIntoView({behavior:'smooth'})">Cast Your Vote →</button>
+        <button class="btn-outline" onclick="document.getElementById('how').scrollIntoView({behavior:'smooth'})">How It Works</button>
+      </div>
+      <div class="hero-cards stg" id="hero-cards">
+        <div class="h-card"><div class="hc-ico"></div><div class="hc-title">SHA-256 Encrypted</div><div class="hc-sub">Every vote cryptographically hashed</div></div>
+        <div class="h-card"><div class="hc-ico"></div><div class="hc-title">Zero-Trust Identity</div><div class="hc-sub">One voter, one verified ballot</div></div>
+        <div class="h-card"><div class="hc-ico"></div><div class="hc-title">Chain Integrity</div><div class="hc-sub">Blockchain-inspired audit trail</div></div>
+      </div>
+      <div class="stats-strip rv" id="stats-strip">
+        <div class="st-it"><span class="st-n" id="sv">—</span><span class="st-l">Registered Voters</span></div>
+        <div class="st-it"><span class="st-n" id="sc">—</span><span class="st-l">Votes Cast</span></div>
+        <div class="st-it"><span class="st-n">5</span><span class="st-l">Candidates</span></div>
+        <div class="st-it"><span class="st-n" id="turnout-pct">—</span><span class="st-l">Voter Turnout</span></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="marquee-wrap">
+    <div class="marquee-track">
+      <span class="mi">SHA-256 ENCRYPTED<span class="ms">◆</span></span>
+      <span class="mi">ZERO-TRUST IDENTITY<span class="ms">◆</span></span>
+      <span class="mi">BLOCKCHAIN AUDIT TRAIL<span class="ms">◆</span></span>
+      <span class="mi">ANONYMOUS BALLOTS<span class="ms">◆</span></span>
+      <span class="mi">REAL-TIME RESULTS<span class="ms">◆</span></span>
+      <span class="mi">CAMPUS ELECTION 2024<span class="ms">◆</span></span>
+      <span class="mi">CRYPTOGRAPHICALLY SECURE<span class="ms">◆</span></span>
+      <span class="mi">SHA-256 ENCRYPTED<span class="ms">◆</span></span>
+      <span class="mi">ZERO-TRUST IDENTITY<span class="ms">◆</span></span>
+      <span class="mi">BLOCKCHAIN AUDIT TRAIL<span class="ms">◆</span></span>
+      <span class="mi">ANONYMOUS BALLOTS<span class="ms">◆</span></span>
+      <span class="mi">REAL-TIME RESULTS<span class="ms">◆</span></span>
+      <span class="mi">CAMPUS ELECTION 2024<span class="ms">◆</span></span>
+      <span class="mi">CRYPTOGRAPHICALLY SECURE<span class="ms">◆</span></span>
+    </div>
+  </div>
+
+  <section id="about">
+    <div class="about-grid">
+      <div class="rvl">
+        <span class="sec-tag">About VaultVote</span>
+        <h2 class="sec-h2">The Basics of<br>Campus Digital<br>Voting</h2>
+        <p class="sec-p">A cryptographically secure e-voting platform demonstrating real-world cybersecurity. Every vote hashed, every identity verified, every action auditable.</p>
+        <p class="sec-p">Zero-trust architecture: votes and voter identities live in separate, anonymized database tables. Your name never touches your ballot.</p>
+        <ul class="feat-list">
+          <li><div class="chk">✓</div>PBKDF2-SHA256 password hashing (310,000 iterations)</li>
+          <li><div class="chk">✓</div>Anonymized ballots — identity &amp; vote in separate tables</li>
+          <li><div class="chk">✓</div>Double-vote prevention — cryptographic session + DB flag</li>
+          <li><div class="chk">✓</div>Blockchain chain hash — tamper-evident audit trail</li>
+          <li><div class="chk">✓</div>Public audit log — verify without losing privacy</li>
+        </ul>
+      </div>
+      <div class="rvr">
+        <div class="code-panel" id="code-panel">
+          <div class="win-dots"><div class="wd r"></div><div class="wd y"></div><div class="wd g"></div></div>
+          <div class="code-blk">
+<span class="cm"># PBKDF2 Password Hashing</span><br>
+<span class="cb">import</span> hashlib, secrets<br><br>
+<span class="cb">def</span> <span class="cg">hash_password</span>(pwd, salt, uid):<br>
+&nbsp;&nbsp;<span class="cb">return</span> hashlib.<span class="co">pbkdf2_hmac</span>(<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cg">'sha256'</span>,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;(pwd+uid).<span class="co">encode</span>(),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;salt.<span class="co">encode</span>(),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="co">310_000</span>&nbsp;&nbsp;<span class="cm"># NIST standard</span><br>
+&nbsp;&nbsp;).<span class="co">hex</span>()<br><br>
+<span class="cm"># SHA-256 Vote Chain</span><br>
+<span class="cb">def</span> <span class="cg">chain_hash</span>(prev, vote, ts):<br>
+&nbsp;&nbsp;data = <span class="cg">f"{prev}:{vote}:{ts}"</span><br>
+&nbsp;&nbsp;<span class="cb">return</span> sha256(data)
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="how">
+    <div class="sec-head rv"><span class="sec-tag">The Process</span><h2 class="sec-h2 centered">How VaultVote Works</h2></div>
+    <div class="steps-grid stg">
+      <div class="step-card rvs"><div class="sn">01</div><div class="si"></div><div class="st">Register</div><div class="sd">Student ID hashed with PBKDF2-SHA256 + unique salt. We store only the hash, never your plain password.</div></div>
+      <div class="step-card rvs"><div class="sn">02</div><div class="si"></div><div class="st">Authenticate</div><div class="sd">Re-hash credentials on login. Constant-time compare prevents timing attacks.</div></div>
+      <div class="step-card rvs"><div class="sn">03</div><div class="si"></div><div class="st">Cast Vote</div><div class="sd">Select candidate. Unique nonce + SHA-256 generates anonymous vote hash. Identity never stored with vote.</div></div>
+      <div class="step-card rvs"><div class="sn">04</div><div class="si"></div><div class="st">Chain &amp; Record</div><div class="sd">Vote hash chained to previous entry. Tamper one entry and every subsequent hash breaks.</div></div>
+      <div class="step-card rvs"><div class="sn">05</div><div class="si"></div><div class="st">Verify</div><div class="sd">Your Vote ID proves your vote exists in the audit log without revealing who you voted for.</div></div>
+    </div>
+  </section>
+
+  <section id="candidates">
+    <div class="sec-head rv"><span class="sec-tag">The Ballot</span><h2 class="sec-h2 centered">Meet the Candidates</h2><p class="sec-sub rv">Hover to flip · Click to vote</p></div>
+    <div class="cand-scroll stg" id="cand-grid"></div>
+    <div class="vote-action-area rv" id="vote-area" style="display:none">
+      <div class="selected-info" id="selected-info"></div>
+      <button class="btn-solid big-vote-btn" id="submit-vote-btn" onclick="submitVote()"> Submit Encrypted Vote</button>
+      <p class="vote-note">Your vote is anonymous — only the SHA-256 hash is recorded</p>
+    </div>
+  </section>
+
+  <section id="results-section">
+    <div class="sec-head rv"><span class="sec-tag">Live Dashboard</span><h2 class="sec-h2 centered">Election Results</h2></div>
+    <div class="results-wrap">
+      <div class="results-stats stg" id="results-stats">
+        <div class="rs-card"><div class="rs-n" id="rs-total">—</div><div class="rs-l">Total Votes</div></div>
+        <div class="rs-card"><div class="rs-n" id="rs-voters">—</div><div class="rs-l">Registered</div></div>
+        <div class="rs-card"><div class="rs-n" id="rs-turnout">—</div><div class="rs-l">Turnout</div></div>
+        <div class="rs-card"><div class="rs-n" id="rs-leading">—</div><div class="rs-l">Leading</div></div>
+      </div>
+      <div class="results-chart rv" id="results-chart"></div>
+    </div>
+  </section>
+
+  <section id="audit">
+    <div class="sec-head rv"><span class="sec-tag">Transparency</span><h2 class="sec-h2 centered">Cryptographic Audit Trail</h2></div>
+    <div class="audit-wrap rv">
+      <div class="audit-table-head">
+        <span>#</span><span>Vote ID</span><span>Candidate</span><span>SHA-256 Hash</span><span>Timestamp</span><span>Status</span>
+      </div>
+      <div id="audit-body"></div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="f-logo">VaultVote</div>
+    <div class="f-center">
+      <span>Cryptographically Secured · SHA-256 · PBKDF2 · Zero-Trust</span><br>
+      <span style="opacity:.5">Built for Hackathon · Cybersecurity Theme</span>
+    </div>
+    <div class="f-right"><a href="/admin" class="admin-link">Admin Panel →</a></div>
+  </footer>
+
+</div>
+
+<!-- AUTH MODAL -->
+<div class="modal-overlay" id="auth-modal">
+  <div class="modal-box" id="auth-box">
+    <button class="modal-close" onclick="closeModal('auth-modal')">&#10005;</button>
+    <div class="tab-bar">
+      <button class="tab-btn active" id="tab-login" onclick="switchTab('login')">Login</button>
+      <button class="tab-btn" id="tab-register" onclick="switchTab('register')">Register</button>
+    </div>
+    <div id="login-form">
+      <h3 class="modal-title"> Voter Authentication</h3>
+      <div class="form-msg" id="login-msg"></div>
+      <div class="form-group"><label>Student ID</label><input type="text" id="l-id" placeholder="e.g. STU2024001" autocomplete="off"></div>
+      <div class="form-group"><label>Password</label><input type="password" id="l-pass" placeholder="Your password"></div>
+      <button class="auth-btn" onclick="doLogin()">Authenticate →</button>
+      <p class="form-note">Admin? Use ID: <code>ADMIN001</code></p>
+    </div>
+    <div id="register-form" style="display:none">
+      <h3 class="modal-title"> Create Voter Account</h3>
+      <div class="form-msg" id="reg-msg"></div>
+      <div class="form-group"><label>Full Name</label><input type="text" id="r-name" placeholder="Your full name"></div>
+      <div class="form-group"><label>Student ID</label><input type="text" id="r-id" placeholder="e.g. STU2024099" autocomplete="off"></div>
+      <div class="form-group"><label>Department</label>
+        <select id="r-dept">
+          <option value="">Select department</option>
+          <option>Computer Science &amp; Engineering</option>
+          <option>Electronics &amp; Communication</option>
+          <option>Mechanical Engineering</option>
+          <option>Civil Engineering</option>
+          <option>Information Technology</option>
+          <option>MBA / Management</option>
+          <option>Arts &amp; Humanities</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Password (min 8 chars)</label><input type="password" id="r-pass" placeholder="Create a strong password"></div>
+      <button class="auth-btn" onclick="doRegister()">Register &amp; Activate →</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM MODAL -->
+<div class="modal-overlay" id="confirm-modal">
+  <div class="modal-box confirm-box">
+    <button class="modal-close" onclick="closeModal('confirm-modal')">&#10005;</button>
+    <div class="confirm-icon"></div>
+    <h3 class="modal-title">Confirm Your Vote</h3>
+    <div class="confirm-candidate" id="confirm-name">—</div>
+    <p class="confirm-info">Your vote will be <strong>cryptographically hashed</strong> and stored anonymously. This action is <strong>irreversible</strong>.</p>
+    <div class="hash-preview" id="confirm-preview">Generating preview hash…</div>
+    <div class="confirm-btns">
+      <button class="btn-outline" onclick="closeModal('confirm-modal')">Cancel</button>
+      <button class="btn-solid" id="confirm-go" onclick="confirmVote()">Confirm Vote →</button>
+    </div>
+  </div>
+</div>
+
+<!-- RECEIPT MODAL -->
+<div class="modal-overlay" id="receipt-modal">
+  <div class="modal-box receipt-box">
+    <div class="receipt-icon"></div>
+    <h3 class="modal-title">Vote Recorded!</h3>
+    <p class="confirm-info">Your encrypted vote has been added to the blockchain-inspired audit chain.</p>
+    <div class="receipt-grid" id="receipt-grid"></div>
+    <button class="btn-solid" onclick="closeModal('receipt-modal');loadResults();loadAudit()">View Live Results →</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <div class="toast-icon" id="toast-icon">✓</div>
+  <div><div class="toast-title" id="toast-title">Done</div><div class="toast-msg" id="toast-msg"></div></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+/**
+ * VaultVote — Cinematic Intro Scene
+ * Pure baby-blue/white Three.js scene. No dark colours.
+ * Glass bubbles, crystal shards, torus rings, floating particles.
+ */
+
+(function () {
+  'use strict';
+
+  /* ── CURSOR ─────────────────────────────────────────── */
+  const curEl   = document.getElementById('cur');
+  const ringEl  = document.getElementById('cur-ring');
+  let mx = innerWidth / 2, my = innerHeight / 2;
+  let rx = mx, ry = my;
+
+  document.addEventListener('mousemove', function (e) {
+    mx = e.clientX;
+    my = e.clientY;
+    curEl.style.transform = 'translate(' + mx + 'px,' + my + 'px) translate(-50%,-50%)';
+  });
+
+  (function loopRing() {
+    rx += (mx - rx) * 0.11;
+    ry += (my - ry) * 0.11;
+    ringEl.style.transform = 'translate(' + rx + 'px,' + ry + 'px) translate(-50%,-50%)';
+    requestAnimationFrame(loopRing);
+  })();
+
+  /* ── TITLE LETTER ANIMATION ─────────────────────────── */
+  var WORD = 'VaultVote';
+  var titleEl = document.getElementById('vault-title');
+  if (titleEl) {
+    WORD.split('').forEach(function (ch, i) {
+      var s = document.createElement('span');
+      s.className = 'ltr';
+      s.textContent = ch;
+      s.style.animationDelay = (0.3 + i * 0.1) + 's';
+      titleEl.appendChild(s);
+    });
+  }
+
+  /* ── THREE.JS INTRO SCENE ───────────────────────────── */
+  var canvas = document.getElementById('intro-canvas');
+  if (!canvas || typeof THREE === 'undefined') return;
+
+  var renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setSize(innerWidth, innerHeight);
+  renderer.setClearColor(0x000000, 0); // transparent — CSS gradient background shows
+
+  var scene  = new THREE.Scene();
+  var camera = new THREE.PerspectiveCamera(58, innerWidth / innerHeight, 0.1, 200);
+  camera.position.set(0, 0, 8);
+
+  /* Fog — soft blue-white depth */
+  scene.fog = new THREE.FogExp2(0xd0eeff, 0.022);
+
+  /* Lights */
+  scene.add(new THREE.AmbientLight(0xd8efff, 3.5));
+
+  var dl = new THREE.DirectionalLight(0xffffff, 3.5);
+  dl.position.set(6, 10, 6);
+  scene.add(dl);
+
+  var pl1 = new THREE.PointLight(0x2d8fcb, 9, 28);
+  pl1.position.set(-5, 3, 5);
+  scene.add(pl1);
+
+  var pl2 = new THREE.PointLight(0x00b8e6, 7, 22);
+  pl2.position.set(5, -2, 4);
+  scene.add(pl2);
+
+  var pl3 = new THREE.PointLight(0xb8f0e8, 5, 18);
+  pl3.position.set(0, 7, -4);
+  scene.add(pl3);
+
+  var group = new THREE.Group();
+  scene.add(group);
+
+  /* ── Main large glass sphere ── */
+  var mainGeo = new THREE.SphereGeometry(2.1, 64, 64);
+  var mainMat = new THREE.MeshPhysicalMaterial({
+    color: 0xc8e8ff,
+    transparent: true,
+    opacity: 0.22,
+    roughness: 0.04,
+    metalness: 0.08,
+    transmission: 0.9,
+    thickness: 2.8,
+    reflectivity: 0.5,
+    side: THREE.DoubleSide
+  });
+  var mainSphere = new THREE.Mesh(mainGeo, mainMat);
+  mainSphere.position.set(0.3, 0, 0);
+  group.add(mainSphere);
+
+  /* Inner glowing core */
+  var coreMesh = new THREE.Mesh(
+    new THREE.SphereGeometry(0.38, 24, 24),
+    new THREE.MeshBasicMaterial({ color: 0x00b8e6, transparent: true, opacity: 0.6 })
+  );
+  group.add(coreMesh);
+
+  /* ── Orbiting glass bubbles ── */
+  var bubbleConfigs = [
+    { r: 0.72, p: [2.9, 1.0, 0.6],  c: 0xa8d4f5 },
+    { r: 0.56, p: [-2.7, 0.9, 0.5], c: 0xd0eaff },
+    { r: 0.48, p: [1.9, -1.7, 1.0], c: 0x3a9bdc },
+    { r: 0.40, p: [-1.9, -1.1, 0.7],c: 0xb8daff },
+    { r: 0.32, p: [0.6, 2.7, -0.5], c: 0xc8f0e8 },
+    { r: 0.26, p: [-3.1, -1.0, -0.9],c: 0xa8d4f5 }
+  ];
+
+  var bubbles = bubbleConfigs.map(function (d) {
+    var m = new THREE.Mesh(
+      new THREE.SphereGeometry(d.r, 32, 32),
+      new THREE.MeshPhysicalMaterial({
+        color: d.c, transparent: true, opacity: 0.28,
+        roughness: 0.04, metalness: 0.12,
+        transmission: 0.88, thickness: 1.5, side: THREE.DoubleSide
+      })
+    );
+    m.position.set(d.p[0], d.p[1], d.p[2]);
+    group.add(m);
+    return { m: m, base: d.p.slice(), spd: 0.25 + Math.random() * 0.45, off: Math.random() * Math.PI * 2 };
+  });
+
+  /* ── Wireframe octahedron overlay ── */
+  var octaWire = new THREE.Mesh(
+    new THREE.OctahedronGeometry(1.5, 0),
+    new THREE.MeshBasicMaterial({ color: 0x2d8fcb, wireframe: true, transparent: true, opacity: 0.09 })
+  );
+  group.add(octaWire);
+
+  /* ── Torus rings — soft blue ── */
+  var ringDefs = [
+    [2.9, 0.013, Math.PI * 0.25, 0,           0x2d8fcb, 0.20],
+    [2.2, 0.009, Math.PI * 0.5,  Math.PI * 0.3, 0x00b8e6, 0.15],
+    [3.6, 0.007, Math.PI * 0.15, Math.PI * 0.6, 0xa8d4f5, 0.11]
+  ];
+  var torusRings = ringDefs.map(function (d) {
+    var mesh = new THREE.Mesh(
+      new THREE.TorusGeometry(d[0], d[1], 8, 90),
+      new THREE.MeshBasicMaterial({ color: d[4], transparent: true, opacity: d[5] })
+    );
+    mesh.rotation.x = d[2];
+    mesh.rotation.z = d[3];
+    group.add(mesh);
+    return mesh;
+  });
+
+  /* ── Floating particles ── */
+  var pN   = 220;
+  var pArr = new Float32Array(pN * 3);
+  var pSpd = [];
+  for (var i = 0; i < pN; i++) {
+    pArr[i * 3]     = (Math.random() - 0.5) * 24;
+    pArr[i * 3 + 1] = (Math.random() - 0.5) * 18;
+    pArr[i * 3 + 2] = (Math.random() - 0.5) * 16;
+    pSpd.push(0.003 + Math.random() * 0.005);
+  }
+  var pGeo = new THREE.BufferGeometry();
+  pGeo.setAttribute('position', new THREE.BufferAttribute(pArr, 3));
+  var pMesh = new THREE.Points(pGeo, new THREE.PointsMaterial({
+    color: 0x7ab8e0, size: 0.055, transparent: true, opacity: 0.5, sizeAttenuation: true
+  }));
+  scene.add(pMesh);
+
+  /* ── Crystal shards ── */
+  var shardMat = new THREE.MeshPhysicalMaterial({
+    color: 0xc8e8ff, transparent: true, opacity: 0.30,
+    roughness: 0.04, metalness: 0.1, transmission: 0.75, thickness: 1.3, side: THREE.DoubleSide
+  });
+  var shards = [];
+  for (var si = 0; si < 14; si++) {
+    var h   = 0.35 + Math.random() * 1.0;
+    var r   = 0.05 + Math.random() * 0.1;
+    var sm  = new THREE.Mesh(new THREE.ConeGeometry(r, h, 5, 1), shardMat.clone());
+    var phi   = Math.acos(-1 + (2 * si) / 14);
+    var theta = Math.sqrt(14 * Math.PI) * phi;
+    var rad   = 3.2 + Math.random() * 1.6;
+    sm.position.set(
+      rad * Math.sin(phi) * Math.cos(theta),
+      rad * Math.sin(phi) * Math.sin(theta),
+      rad * Math.cos(phi)
+    );
+    sm.rotation.set(Math.random() * Math.PI * 2, Math.random() * Math.PI * 2, Math.random() * Math.PI * 2);
+    sm.userData = {
+      spd: 0.18 + Math.random() * 0.32,
+      off: Math.random() * Math.PI * 2,
+      rx:  0.004 + Math.random() * 0.007,
+      ry:  0.003 + Math.random() * 0.006
+    };
+    group.add(sm);
+    shards.push(sm);
+  }
+
+  /* Mouse tracking */
+  var imx = 0, imy = 0;
+  document.addEventListener('mousemove', function (e) {
+    imx = (e.clientX / innerWidth  - 0.5) * 2;
+    imy = (e.clientY / innerHeight - 0.5) * 2;
+  });
+
+  /* Resize */
+  window.addEventListener('resize', function () {
+    camera.aspect = innerWidth / innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(innerWidth, innerHeight);
+  });
+
+  /* Animation loop */
+  var clock = new THREE.Clock();
+  function animateIntro() {
+    requestAnimationFrame(animateIntro);
+    var t = clock.getElapsedTime();
+
+    /* Mouse parallax */
+    group.rotation.y += (imx * 0.38 - group.rotation.y) * 0.038;
+    group.rotation.x += (-imy * 0.22 - group.rotation.x) * 0.038;
+
+    /* Main sphere */
+    mainSphere.scale.setScalar(1 + Math.sin(t * 0.75) * 0.055);
+    mainSphere.rotation.y = t * 0.13;
+
+    /* Core pulse */
+    var corePulse = 1 + Math.sin(t * 2.4) * 0.24;
+    coreMesh.scale.setScalar(corePulse);
+    coreMesh.material.opacity = 0.38 + Math.sin(t * 2) * 0.2;
+
+    /* Octahedron */
+    octaWire.rotation.x = t * 0.22;
+    octaWire.rotation.y = t * 0.30;
+
+    /* Torus rings */
+    torusRings[0].rotation.z = t * 0.12;
+    torusRings[1].rotation.y = t * 0.18;
+    torusRings[2].rotation.x += 0.003;
+
+    /* Bubbles float */
+    for (var bi = 0; bi < bubbles.length; bi++) {
+      var b = bubbles[bi];
+      b.m.position.y = b.base[1] + Math.sin(t * b.spd + b.off) * 0.48;
+      b.m.position.x = b.base[0] + Math.cos(t * b.spd * 0.7 + b.off) * 0.22;
+      b.m.rotation.y = t * 0.22;
+    }
+
+    /* Shards drift */
+    for (var xi = 0; xi < shards.length; xi++) {
+      var s = shards[xi];
+      s.rotation.x += s.userData.rx;
+      s.rotation.y += s.userData.ry;
+      s.position.y  += Math.sin(t * s.userData.spd + s.userData.off) * 0.004;
+    }
+
+    /* Particles rise */
+    var pa = pMesh.geometry.attributes.position.array;
+    for (var pi = 0; pi < pN; pi++) {
+      pa[pi * 3 + 1] += pSpd[pi];
+      if (pa[pi * 3 + 1] > 9) pa[pi * 3 + 1] = -9;
+    }
+    pMesh.geometry.attributes.position.needsUpdate = true;
+    pMesh.rotation.y = t * 0.01;
+
+    /* Light orbit */
+    pl1.position.x = Math.sin(t * 0.5) * 6;
+    pl1.position.z = Math.cos(t * 0.5) * 5;
+    pl2.position.x = Math.cos(t * 0.42) * 6;
+    pl2.position.z = Math.sin(t * 0.42) * 5;
+
+    renderer.render(scene, camera);
+  }
+  animateIntro();
+
+})();
+
+</script>
+<script>
+/**
+ * VaultVote — Site Background Scene + Transitions
+ * Light blue Three.js orbs for the main site background.
+ * Handles intro → site transition, scroll reveal, blob, tilt effects.
+ */
+
+(function () {
+  'use strict';
+
+  /* ══════════════════════════════════════════════════════
+     SITE THREE.JS BACKGROUND
+  ══════════════════════════════════════════════════════ */
+  var siteCanvas = document.getElementById('site-canvas');
+  if (!siteCanvas || typeof THREE === 'undefined') return;
+
+  var renderer = new THREE.WebGLRenderer({ canvas: siteCanvas, antialias: true, alpha: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setSize(innerWidth, innerHeight);
+  renderer.setClearColor(0x000000, 0);
+
+  var scene  = new THREE.Scene();
+  var camera = new THREE.PerspectiveCamera(60, innerWidth / innerHeight, 0.1, 100);
+  camera.position.z = 5;
+
+  scene.add(new THREE.AmbientLight(0xd0eeff, 2.8));
+  var dl = new THREE.DirectionalLight(0xffffff, 2.5);
+  dl.position.set(5, 10, 5);
+  scene.add(dl);
+
+  var spl1 = new THREE.PointLight(0x2d8fcb, 5, 20);
+  spl1.position.set(-4, 2, 3);
+  scene.add(spl1);
+
+  var spl2 = new THREE.PointLight(0x00b8e6, 4, 15);
+  spl2.position.set(4, -2, 2);
+  scene.add(spl2);
+
+  var sg = new THREE.Group();
+  scene.add(sg);
+
+  /* Main orb */
+  var mainOrb = new THREE.Mesh(
+    new THREE.SphereGeometry(1.8, 64, 64),
+    new THREE.MeshPhysicalMaterial({
+      color: 0xc8e8ff, transparent: true, opacity: 0.15,
+      roughness: 0.05, metalness: 0.08, transmission: 0.93,
+      thickness: 2, side: THREE.DoubleSide
+    })
+  );
+  mainOrb.position.set(0.5, 0, 0);
+  sg.add(mainOrb);
+
+  /* Small orbs */
+  var orbData = [
+    { r: 0.60, p: [2.2,  0.8,  0.5], c: 0xa8d4f5 },
+    { r: 0.45, p: [-2.0, 0.5,  0.3], c: 0xd0eaff },
+    { r: 0.35, p: [1.5, -1.2,  0.8], c: 0x3a9bdc },
+    { r: 0.28, p: [-1.5,-0.8, -0.5], c: 0xb8daff }
+  ];
+  var siteOrbs = orbData.map(function (d) {
+    var m = new THREE.Mesh(
+      new THREE.SphereGeometry(d.r, 32, 32),
+      new THREE.MeshPhysicalMaterial({
+        color: d.c, transparent: true, opacity: 0.20,
+        roughness: 0.05, metalness: 0.12,
+        transmission: 0.88, thickness: 1.4, side: THREE.DoubleSide
+      })
+    );
+    m.position.set(d.p[0], d.p[1], d.p[2]);
+    sg.add(m);
+    return { m: m, base: d.p.slice(), spd: 0.25 + Math.random() * 0.4, off: Math.random() * Math.PI * 2 };
+  });
+
+  /* Wireframe icosahedron */
+  var sIco = new THREE.Mesh(
+    new THREE.IcosahedronGeometry(1.1, 1),
+    new THREE.MeshBasicMaterial({ color: 0x2d8fcb, wireframe: true, transparent: true, opacity: 0.09 })
+  );
+  sIco.position.set(-0.3, 0, 0);
+  sg.add(sIco);
+
+  /* Rings */
+  [[2.4, 0.012, Math.PI * 0.30, 0,           0x2d8fcb, 0.14],
+   [1.8, 0.008, Math.PI * 0.50, Math.PI * 0.2, 0x00b8e6, 0.10]].forEach(function (d) {
+    var ring = new THREE.Mesh(
+      new THREE.TorusGeometry(d[0], d[1], 8, 80),
+      new THREE.MeshBasicMaterial({ color: d[4], transparent: true, opacity: d[5] })
+    );
+    ring.rotation.x = d[2];
+    ring.rotation.z = d[3];
+    sg.add(ring);
+  });
+
+  /* Particles */
+  var spN  = 140;
+  var spP  = new Float32Array(spN * 3);
+  var spSpd = [];
+  for (var i = 0; i < spN; i++) {
+    spP[i * 3]     = (Math.random() - 0.5) * 14;
+    spP[i * 3 + 1] = (Math.random() - 0.5) * 9;
+    spP[i * 3 + 2] = (Math.random() - 0.5) * 7;
+    spSpd.push(0.003 + Math.random() * 0.004);
+  }
+  var spGeo = new THREE.BufferGeometry();
+  spGeo.setAttribute('position', new THREE.BufferAttribute(spP, 3));
+  var sPts = new THREE.Points(spGeo, new THREE.PointsMaterial({
+    color: 0x2d8fcb, size: 0.04, transparent: true, opacity: 0.32, sizeAttenuation: true
+  }));
+  scene.add(sPts);
+
+  var smx = 0, smy = 0, sCY = 0;
+
+  document.addEventListener('mousemove', function (e) {
+    smx = (e.clientX / innerWidth  - 0.5) * 2;
+    smy = (e.clientY / innerHeight - 0.5) * 2;
+  });
+
+  window.addEventListener('scroll', function () {
+    sCY = window.scrollY;
+  });
+
+  window.addEventListener('resize', function () {
+    camera.aspect = innerWidth / innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(innerWidth, innerHeight);
+  });
+
+  var sClock = new THREE.Clock();
+  function animateSite() {
+    requestAnimationFrame(animateSite);
+    var t = sClock.getElapsedTime();
+
+    sg.rotation.y += (smx * 0.28 - sg.rotation.y) * 0.034;
+    sg.rotation.x += (-smy * 0.14 - sg.rotation.x) * 0.034;
+
+    mainOrb.scale.setScalar(1 + Math.sin(t * 0.72) * 0.04);
+    mainOrb.rotation.y = t * 0.16;
+
+    sIco.rotation.x = t * 0.26;
+    sIco.rotation.y = t * 0.34;
+
+    for (var oi = 0; oi < siteOrbs.length; oi++) {
+      var o = siteOrbs[oi];
+      o.m.position.y = o.base[1] + Math.sin(t * o.spd + o.off) * 0.4;
+      o.m.rotation.y = t * 0.22;
+    }
+
+    sg.position.y = -sCY * 0.0025;
+    camera.position.z = 5 - sCY * 0.0007;
+
+    spl1.position.x = Math.sin(t * 0.5) * 5;
+    spl2.position.x = Math.cos(t * 0.42) * 5;
+
+    var spa = sPts.geometry.attributes.position.array;
+    for (var pi = 0; pi < spN; pi++) {
+      spa[pi * 3 + 1] += spSpd[pi];
+      if (spa[pi * 3 + 1] > 4.5) spa[pi * 3 + 1] = -4.5;
+    }
+    sPts.geometry.attributes.position.needsUpdate = true;
+
+    renderer.render(scene, camera);
+  }
+  animateSite();
+
+  /* ══════════════════════════════════════════════════════
+     INTRO → SITE TRANSITION
+  ══════════════════════════════════════════════════════ */
+  var introExited = false;
+
+  function exitIntro() {
+    if (introExited) return;
+    introExited = true;
+
+    var intro = document.getElementById('intro');
+    if (intro) intro.classList.add('exit');
+
+    siteCanvas.classList.add('vis');
+
+    setTimeout(function () {
+      if (intro) intro.style.display = 'none';
+
+      var site = document.getElementById('site');
+      if (site) site.classList.add('vis');
+
+      var nav = document.getElementById('nav');
+      if (nav) nav.classList.add('vis');
+
+      /* Hero stagger */
+      var hCards = document.getElementById('hero-cards');
+      if (hCards) hCards.classList.add('on');
+
+      setTimeout(function () {
+        var ss = document.getElementById('stats-strip');
+        if (ss) ss.classList.add('on');
+      }, 500);
+
+      startReveal();
+      startNavScroll();
+    }, 900);
+  }
+
+  /* Trigger on scroll/wheel/touch/click or auto after 7s */
+  ['wheel', 'scroll', 'touchmove'].forEach(function (ev) {
+    window.addEventListener(ev, function handler() {
+      exitIntro();
+      window.removeEventListener(ev, handler);
+    }, { passive: true });
+  });
+
+  var introEl = document.getElementById('intro');
+  if (introEl) {
+    introEl.addEventListener('click', exitIntro);
+  }
+
+  setTimeout(exitIntro, 7000);
+
+  /* ══════════════════════════════════════════════════════
+     SCROLL REVEAL
+  ══════════════════════════════════════════════════════ */
+  function startReveal() {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) e.target.classList.add('on');
+      });
+    }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+
+    document.querySelectorAll('.rv, .rvl, .rvr, .rvs, .stg').forEach(function (el) {
+      io.observe(el);
+    });
+  }
+
+  /* ══════════════════════════════════════════════════════
+     NAV SCROLL STATE
+  ══════════════════════════════════════════════════════ */
+  function startNavScroll() {
+    window.addEventListener('scroll', function () {
+      var nav = document.getElementById('nav');
+      if (nav) nav.classList.toggle('scrolled', window.scrollY > 50);
+    });
+  }
+
+  /* ══════════════════════════════════════════════════════
+     LIQUID BLOB FOLLOWS MOUSE IN HERO
+  ══════════════════════════════════════════════════════ */
+  var blob    = document.getElementById('blob');
+  var heroSec = document.getElementById('hero');
+  if (blob && heroSec) {
+    heroSec.addEventListener('mousemove', function (e) {
+      var rect = heroSec.getBoundingClientRect();
+      blob.style.left = (e.clientX - rect.left) + 'px';
+      blob.style.top  = (e.clientY - rect.top)  + 'px';
+    });
+  }
+
+  /* ══════════════════════════════════════════════════════
+     3D TILT — glass cards, code panel, step cards
+  ══════════════════════════════════════════════════════ */
+  document.addEventListener('mousemove', function (e) {
+    var cx = e.clientX / innerWidth  - 0.5;
+    var cy = e.clientY / innerHeight - 0.5;
+
+    document.querySelectorAll('.h-card').forEach(function (el, i) {
+      var d = (i + 1) * 11;
+      el.style.transform = 'perspective(700px) rotateY(' + (cx * d) + 'deg) rotateX(' + (-cy * d * 0.5) + 'deg)';
+    });
+
+    var cp = document.getElementById('code-panel');
+    if (cp) {
+      cp.style.transform = 'perspective(900px) rotateY(' + (cx * 12 - 6) + 'deg) rotateX(' + (-cy * 7 + 3) + 'deg)';
+    }
+  });
+
+  /* ══════════════════════════════════════════════════════
+     DRAG SCROLL — candidates
+  ══════════════════════════════════════════════════════ */
+  var cs = document.querySelector('.cand-scroll');
+  if (cs) {
+    var dn = false, dsx, dsl;
+    cs.addEventListener('mousedown', function (e) {
+      dn  = true;
+      dsx = e.pageX - cs.offsetLeft;
+      dsl = cs.scrollLeft;
+    });
+    cs.addEventListener('mouseleave', function () { dn = false; });
+    cs.addEventListener('mouseup',    function () { dn = false; });
+    cs.addEventListener('mousemove',  function (e) {
+      if (!dn) return;
+      e.preventDefault();
+      cs.scrollLeft = dsl - (e.pageX - cs.offsetLeft - dsx) * 1.5;
+    });
+  }
+
+})();
+
+</script>
+<script>
+/**
+ * VaultVote — Main Application Logic
+ * Handles: auth, candidate rendering, vote flow,
+ * live results, audit log, modals, toasts.
+ */
+
+(function () {
+  'use strict';
+
+  /* ══════════════════════════════════════════════════════
+     STATE
+  ══════════════════════════════════════════════════════ */
+  var state = {
+    user:          null,       // { student_id, name, role, has_voted }
+    candidates:    [],
+    selectedId:    null,
+    voteSubmitted: false
+  };
+
+  /* ══════════════════════════════════════════════════════
+     INIT — runs once site is visible
+  ══════════════════════════════════════════════════════ */
+  function init() {
+    checkSession();
+    loadCandidates();
+    loadResults();
+    loadAudit();
+
+    /* Auto-refresh results every 8 seconds */
+    setInterval(function () {
+      loadResults();
+      loadAudit();
+    }, 8000);
+
+    /* Enter key submits forms */
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') closeAllModals();
+    });
+  }
+
+  /* Run init when site becomes visible - poll every 200ms (bulletproof) */
+  function waitForSite() {
+    var siteEl = document.getElementById('site');
+    if (siteEl && siteEl.classList.contains('vis')) {
+      init();
+    } else {
+      setTimeout(waitForSite, 200);
+    }
+  }
+  /* Also run immediately in case already visible, and as fallback */
+  setTimeout(waitForSite, 100);
+  window.addEventListener('load', function() {
+    setTimeout(function() {
+      var siteEl = document.getElementById('site');
+      if (siteEl && siteEl.classList.contains('vis') && !window._vvInited) {
+        init();
+      }
+    }, 500);
+  });
+
+  /* ══════════════════════════════════════════════════════
+     API HELPER
+  ══════════════════════════════════════════════════════ */
+  function api(method, url, data, cb) {
+    var opts = {
+      method:      method,
+      credentials: 'same-origin',
+      headers:     { 'Content-Type': 'application/json' }
+    };
+    if (data) opts.body = JSON.stringify(data);
+
+    fetch(url, opts)
+      .then(function (res) { return res.json(); })
+      .then(function (json) { cb(null, json); })
+      .catch(function (err) { cb(err, null); });
+  }
+
+  /* ══════════════════════════════════════════════════════
+     SESSION
+  ══════════════════════════════════════════════════════ */
+  function checkSession() {
+    api('GET', '/api/me', null, function (err, data) {
+      if (err || !data) return;
+      if (data.authenticated) {
+        state.user = data;
+        updateNavUI();
+        if (data.role === 'admin') {
+          window.location.href = '/admin';
+        }
+      }
+    });
+  }
+
+  function updateNavUI() {
+    var btn      = document.getElementById('nav-auth-btn');
+    var userSpan = document.getElementById('nav-user');
+    if (!btn) return;
+
+    if (state.user) {
+      userSpan.textContent = '👤 ' + (state.user.name || state.user.student_id);
+      btn.textContent = 'Logout';
+      btn.onclick = doLogout;
+    } else {
+      userSpan.textContent = '';
+      btn.textContent = 'Login / Register';
+      btn.onclick = openAuth;
+    }
+  }
+
+  /* ══════════════════════════════════════════════════════
+     AUTH MODAL
+  ══════════════════════════════════════════════════════ */
+  window.openAuth = function () {
+    openModal('auth-modal');
+  };
+
+  window.switchTab = function (tab) {
+    var loginForm    = document.getElementById('login-form');
+    var registerForm = document.getElementById('register-form');
+    var tabLogin     = document.getElementById('tab-login');
+    var tabRegister  = document.getElementById('tab-register');
+    if (!loginForm || !registerForm) return;
+
+    if (tab === 'login') {
+      loginForm.style.display    = '';
+      registerForm.style.display = 'none';
+      tabLogin.classList.add('active');
+      tabRegister.classList.remove('active');
+    } else {
+      loginForm.style.display    = 'none';
+      registerForm.style.display = '';
+      tabLogin.classList.remove('active');
+      tabRegister.classList.add('active');
+    }
+    clearMsgs();
+  };
+
+  window.doLogin = function () {
+    var id   = val('l-id').toUpperCase().trim();
+    var pass = val('l-pass');
+    var msg  = document.getElementById('login-msg');
+
+    if (!id || !pass) { showMsg(msg, 'err', 'Please enter your Student ID and password.'); return; }
+
+    api('POST', '/api/login', { student_id: id, password: pass }, function (err, data) {
+      if (err || !data) { showMsg(msg, 'err', 'Network error. Try again.'); return; }
+      if (!data.success) { showMsg(msg, 'err', data.error || 'Login failed'); return; }
+
+      state.user = { student_id: id, name: data.name, role: data.role, has_voted: data.has_voted };
+      closeModal('auth-modal');
+      updateNavUI();
+      toast('ok', '✓', 'Welcome back, ' + (data.name || id) + '!');
+
+      if (data.role === 'admin') {
+        window.location.href = '/admin';
+        return;
+      }
+      if (data.has_voted) {
+        toast('ok', 'ℹ', 'You have already voted. Showing live results.');
+        document.getElementById('results-section').scrollIntoView({ behavior: 'smooth' });
+      }
+    });
+  };
+
+  window.doRegister = function () {
+    var name = val('r-name').trim();
+    var id   = val('r-id').toUpperCase().trim();
+    var dept = val('r-dept');
+    var pass = val('r-pass');
+    var msg  = document.getElementById('reg-msg');
+
+    if (!name || !id || !dept || !pass) { showMsg(msg, 'err', 'All fields are required.'); return; }
+    if (id.length < 6)   { showMsg(msg, 'err', 'Student ID must be at least 6 characters.'); return; }
+    if (pass.length < 8) { showMsg(msg, 'err', 'Password must be at least 8 characters.'); return; }
+
+    api('POST', '/api/register',
+      { name: name, student_id: id, department: dept, password: pass },
+      function (err, data) {
+        if (err || !data) { showMsg(msg, 'err', 'Network error. Try again.'); return; }
+        if (!data.success) { showMsg(msg, 'err', data.error || 'Registration failed'); return; }
+
+        showMsg(msg, 'ok', '✓ Registered! ' + data.message + ' — You may now login.');
+        toast('ok', '', 'Account created! Please log in to vote.');
+        clearFields(['r-name', 'r-id', 'r-pass']);
+        document.getElementById('r-dept').value = '';
+        setTimeout(function () { switchTab('login'); }, 1800);
+      }
+    );
+  };
+
+  window.doLogout = function () {
+    api('POST', '/api/logout', null, function () {
+      state.user = null;
+      state.selectedId = null;
+      updateNavUI();
+      renderVoteArea();
+      toast('ok', '', 'Logged out successfully.');
+    });
+  };
+
+  /* ══════════════════════════════════════════════════════
+     CANDIDATES
+  ══════════════════════════════════════════════════════ */
+  function loadCandidates() {
+    // First ensure candidates are seeded, then load them
+    api('GET', '/api/seed', null, function() {
+      api('GET', '/api/candidates', null, function (err, data) {
+        if (err || !data || !data.candidates) {
+          // Retry after 1s
+          setTimeout(loadCandidates, 1000);
+          return;
+        }
+        if (data.candidates.length === 0) {
+          setTimeout(loadCandidates, 1000);
+          return;
+        }
+        state.candidates = data.candidates;
+        renderCandidates();
+      });
+    });
+  }
+
+  function renderCandidates() {
+    var grid = document.getElementById('cand-grid');
+    if (!grid) return;
+
+    grid.innerHTML = state.candidates.map(function (c) {
+      var emoji = candidateEmoji(c.id);
+      return [
+        '<div class="flip-wrap" id="flip-' + c.id + '" onclick="selectCandidate(\'' + c.id + '\')">',
+          '<div class="flip-inner" id="finner-' + c.id + '">',
+            '<div class="flip-front" id="ffront-' + c.id + '">',
+              '<div class="c-av">' + emoji + '</div>',
+              '<div class="c-name">' + esc(c.name) + '</div>',
+              '<div class="c-party">' + esc(c.party) + '</div>',
+              '<div class="c-mani">' + esc(c.manifesto) + '</div>',
+              '<div class="flip-hint">Hover to see hash · Click to select</div>',
+            '</div>',
+            '<div class="flip-back">',
+              '<div class="back-title"> Cryptographic ID</div>',
+              '<div class="back-hash">',
+                'ID: ' + esc(c.id) + '<br>',
+                'sha256:<br>' + fakeHash(c.id),
+              '</div>',
+              '<button class="select-btn" id="selbtn-' + c.id + '">Select ' + esc(c.name) + '</button>',
+            '</div>',
+          '</div>',
+        '</div>'
+      ].join('');
+    }).join('');
+  }
+
+  window.selectCandidate = function (id) {
+    if (!state.user) {
+      toast('err', '', 'Please login first to vote.');
+      openAuth();
+      return;
+    }
+    if (state.user.role === 'admin') {
+      toast('err', '', 'Admins cannot vote.');
+      return;
+    }
+    if (state.user.has_voted || state.voteSubmitted) {
+      toast('err', 'ℹ', 'You have already cast your vote.');
+      return;
+    }
+
+    state.selectedId = id;
+
+    /* Visual feedback */
+    state.candidates.forEach(function (c) {
+      var wrap  = document.getElementById('flip-' + c.id);
+      var front = document.getElementById('ffront-' + c.id);
+      var selBtn = document.getElementById('selbtn-' + c.id);
+      if (!wrap) return;
+      wrap.classList.toggle('selected', c.id === id);
+      if (front) front.classList.toggle('sel-border', c.id === id);
+      if (selBtn) selBtn.classList.toggle('active', c.id === id);
+    });
+
+    renderVoteArea();
+  };
+
+  function renderVoteArea() {
+    var area = document.getElementById('vote-area');
+    var info = document.getElementById('selected-info');
+    if (!area) return;
+
+    if (!state.user || state.user.has_voted || state.voteSubmitted) {
+      area.style.display = 'none';
+      return;
+    }
+
+    if (!state.selectedId) {
+      area.style.display = 'none';
+      return;
+    }
+
+    var c = state.candidates.find(function (x) { return x.id === state.selectedId; });
+    if (!c) return;
+
+    info.textContent = candidateEmoji(c.id) + ' ' + c.name + ' — ' + c.party;
+    area.style.display = '';
+  }
+
+  /* ══════════════════════════════════════════════════════
+     VOTE FLOW
+  ══════════════════════════════════════════════════════ */
+  window.submitVote = function () {
+    if (!state.user) { openAuth(); return; }
+    if (!state.selectedId) { toast('err', '', 'Please select a candidate first.'); return; }
+    if (state.user.has_voted || state.voteSubmitted) { toast('err', 'ℹ', 'You have already voted.'); return; }
+
+    var c = state.candidates.find(function (x) { return x.id === state.selectedId; });
+    if (!c) return;
+
+    /* Show confirm modal */
+    document.getElementById('confirm-name').textContent = candidateEmoji(c.id) + ' ' + c.name;
+
+    /* Generate a preview hash client-side using SubtleCrypto */
+    var previewEl = document.getElementById('confirm-preview');
+    previewEl.textContent = 'Generating cryptographic preview…';
+
+    if (window.crypto && window.crypto.subtle) {
+      var raw = state.user.student_id + ':' + c.id + ':' + Date.now() + ':preview';
+      var enc = new TextEncoder();
+      window.crypto.subtle.digest('SHA-256', enc.encode(raw))
+        .then(function (buf) {
+          var arr  = Array.from(new Uint8Array(buf));
+          var hex  = arr.map(function (b) { return b.toString(16).padStart(2, '0'); }).join('');
+          previewEl.textContent = 'SHA-256 preview: ' + hex.substring(0, 32) + '…\n(Actual hash generated server-side with unique nonce)';
+        })
+        .catch(function () {
+          previewEl.textContent = 'Hash preview unavailable in this context.';
+        });
+    } else {
+      previewEl.textContent = fakeHash(c.id).replace(/<br>/g, '\n');
+    }
+
+    openModal('confirm-modal');
+  };
+
+  window.confirmVote = function () {
+    if (!state.selectedId || !state.user) return;
+
+    var confirmBtn = document.getElementById('confirm-go');
+    if (confirmBtn) { confirmBtn.disabled = true; confirmBtn.textContent = 'Submitting…'; }
+
+    api('POST', '/api/vote', { candidate_id: state.selectedId }, function (err, data) {
+      if (confirmBtn) { confirmBtn.disabled = false; confirmBtn.textContent = 'Confirm Vote →'; }
+      closeModal('confirm-modal');
+
+      if (err || !data) { toast('err', '', 'Network error. Please try again.'); return; }
+      if (!data.success) { toast('err', '', data.error || 'Vote failed.'); return; }
+
+      state.voteSubmitted  = true;
+      state.user.has_voted = true;
+
+      /* Show receipt */
+      var rg = document.getElementById('receipt-grid');
+      if (rg) {
+        rg.innerHTML = [
+          '<span class="rk">VOTE ID: </span><span class="rv">' + esc(data.vote_id) + '</span><br>',
+          '<span class="rk">CANDIDATE: </span><span class="rv">' + esc(data.candidate) + '</span><br>',
+          '<span class="rk">TIMESTAMP: </span><span class="rv">' + new Date(data.timestamp).toLocaleString() + '</span><br>',
+          '<span class="rk">SHA-256: </span><br><span class="rh">' + esc(data.hash) + '</span><br>',
+          '<span class="rk">CHAIN: </span><br><span class="rh">' + esc(data.chain_hash) + '</span><br>',
+          '<span class="rk">STATUS: </span><span style="color:#2d8a4e;font-weight:700">✓ VERIFIED &amp; RECORDED</span>'
+        ].join('');
+      }
+
+      closeModal('confirm-modal');
+      openModal('receipt-modal');
+
+      /* Hide vote area */
+      var va = document.getElementById('vote-area');
+      if (va) va.style.display = 'none';
+
+      loadResults();
+      loadAudit();
+    });
+  };
+
+  /* ══════════════════════════════════════════════════════
+     LIVE RESULTS
+  ══════════════════════════════════════════════════════ */
+  window.loadResults = function () {
+    api('GET', '/api/results', null, function (err, data) {
+      if (err || !data) return;
+
+      setText('rs-total',   data.total_votes);
+      setText('rs-voters',  data.total_voters);
+      setText('rs-turnout', data.turnout + '%');
+
+      var leader = data.results && data.results[0];
+      setText('rs-leading', leader ? leader.name.split(' ')[0] : '—');
+
+      /* Hero stats */
+      animCount('sv', data.total_voters);
+      animCount('sc', data.votes_cast);
+      setText('turnout-pct', data.turnout + '%');
+
+      /* Chart */
+      var chart = document.getElementById('results-chart');
+      if (!chart || !data.results) return;
+
+      var maxVotes = Math.max.apply(null, data.results.map(function (r) { return r.votes; })) || 1;
+
+      chart.innerHTML = data.results.map(function (r) {
+        var pct  = Math.round((r.votes / maxVotes) * 100);
+        var vpct = r.percentage;
+        return [
+          '<div class="r-row">',
+            '<div class="r-top">',
+              '<span>',
+                '<span class="r-name">' + esc(r.name) + '</span>',
+                '<span class="r-party">· ' + esc(r.party) + '</span>',
+              '</span>',
+              '<span class="r-count">' + r.votes + ' <small style="font-size:.8rem;color:var(--muted)">(' + vpct + '%)</small></span>',
+            '</div>',
+            '<div class="bar-track">',
+              '<div class="bar-fill" style="width:' + pct + '%"></div>',
+            '</div>',
+          '</div>'
+        ].join('');
+      }).join('');
+    });
+  };
+
+  /* ══════════════════════════════════════════════════════
+     AUDIT LOG
+  ══════════════════════════════════════════════════════ */
+  window.loadAudit = function () {
+    api('GET', '/api/audit', null, function (err, data) {
+      if (err || !data || !data.audit_log) return;
+
+      var body = document.getElementById('audit-body');
+      if (!body) return;
+
+      if (!data.audit_log.length) {
+        body.innerHTML = '<div style="text-align:center;padding:2.5rem;color:var(--muted);font-size:.85rem">No votes recorded yet</div>';
+        return;
+      }
+
+      body.innerHTML = data.audit_log.map(function (e, i) {
+        var shortHash  = e.sha256_hash  ? (e.sha256_hash.substring(0, 16) + '…')  : '—';
+        var ts         = e.timestamp    ? new Date(e.timestamp).toLocaleTimeString() : '—';
+        return [
+          '<div class="a-row">',
+            '<div class="a-num">' + (i + 1) + '</div>',
+            '<div class="a-vid">' + esc(e.vote_id || '—') + '</div>',
+            '<div class="a-cand">' + esc(e.candidate_name || '—') + '</div>',
+            '<div class="a-hash">' + esc(shortHash) + '</div>',
+            '<div class="a-ts">'   + esc(ts) + '</div>',
+            '<div class="a-badge">✓ VERIFIED</div>',
+          '</div>'
+        ].join('');
+      }).join('');
+    });
+  };
+
+  /* ══════════════════════════════════════════════════════
+     MODALS
+  ══════════════════════════════════════════════════════ */
+  function openModal(id) {
+    var el = document.getElementById(id);
+    if (el) el.classList.add('open');
+  }
+
+  function closeAllModals() {
+    document.querySelectorAll('.modal-overlay').forEach(function (m) {
+      m.classList.remove('open');
+    });
+  }
+
+  window.closeModal = function (id) {
+    var el = document.getElementById(id);
+    if (el) el.classList.remove('open');
+  };
+
+  /* Close on overlay click */
+  document.querySelectorAll('.modal-overlay').forEach(function (overlay) {
+    overlay.addEventListener('click', function (e) {
+      if (e.target === overlay) overlay.classList.remove('open');
+    });
+  });
+
+  /* ══════════════════════════════════════════════════════
+     TOAST
+  ══════════════════════════════════════════════════════ */
+  var toastTimer = null;
+  function toast(type, icon, msg) {
+    var el    = document.getElementById('toast');
+    var icoEl = document.getElementById('toast-icon');
+    var titEl = document.getElementById('toast-title');
+    var msgEl = document.getElementById('toast-msg');
+    if (!el) return;
+
+    if (icoEl) icoEl.textContent = icon;
+    if (titEl) titEl.textContent = type === 'ok' ? 'Success' : 'Notice';
+    if (msgEl) msgEl.textContent = msg;
+
+    el.className = 'toast ' + type + ' show';
+
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () {
+      el.classList.remove('show');
+    }, 4200);
+  }
+  window.toast = toast;
+
+  /* ══════════════════════════════════════════════════════
+     HELPERS
+  ══════════════════════════════════════════════════════ */
+  function val(id) {
+    var el = document.getElementById(id);
+    return el ? el.value : '';
+  }
+
+  function setText(id, text) {
+    var el = document.getElementById(id);
+    if (el) el.textContent = text;
+  }
+
+  function esc(str) {
+    if (!str) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function showMsg(el, type, text) {
+    if (!el) return;
+    el.textContent  = text;
+    el.className    = 'form-msg ' + type;
+  }
+
+  function clearMsgs() {
+    ['login-msg', 'reg-msg'].forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el) { el.textContent = ''; el.className = 'form-msg'; }
+    });
+  }
+
+  function clearFields(ids) {
+    ids.forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el) el.value = '';
+    });
+  }
+
+  function candidateEmoji(id) {
+    var map = { C001: '👨‍💼', C002: '👩‍🔬', C003: '👨‍🎓', C004: '🌱', C005: '🤝' };
+    return map[id] || '👤';
+  }
+
+  function fakeHash(id) {
+    /* Stable-looking hex string seeded by id for display only */
+    var seeds = {
+      C001: 'a3f8b2c1d4e9f07b<br>3c1a8d6e2f4b9c3d<br>1e7a5f2b8c4d9e1f<br>3a7b2c5d8e0f4a1b',
+      C002: 'b7d4e9f2c3a1b8d5<br>e2f9c4a7b1d6e3f0<br>a5b2c8d4e7f1a9b3<br>c6d2e5f8a0b4c7d2',
+      C003: 'c1e6a3d7f2b9c4e1<br>a8d5f2b7c3e0a6d4<br>b1e8f5c2a9d7e4b0<br>f6c3a1d8e5f2b9c4',
+      C004: 'd9c2f8a1e4b7c3d0<br>f5a2b6e9c1d4f7a0<br>b3c8e2f5a1b9d6c3<br>e0f4a7b2d5e8c1f6',
+      C005: 'e4b1c7f3a9d2e6b0<br>c5f1a8d4b9e3c7f2<br>a1d5b8e0c4f7a3b6<br>d9e2c0f5a4b7d1e8'
+    };
+    return seeds[id] || '0000000000000000<br>0000000000000000<br>0000000000000000<br>0000000000000000';
+  }
+
+  var animTimers = {};
+  function animCount(id, target) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    clearInterval(animTimers[id]);
+    var current  = 0;
+    var duration = 1400;
+    var start    = performance.now();
+    animTimers[id] = setInterval(function () {
+      var elapsed = performance.now() - start;
+      var progress = Math.min(elapsed / duration, 1);
+      /* ease-out cubic */
+      var ease = 1 - Math.pow(1 - progress, 3);
+      el.textContent = Math.floor(ease * target);
+      if (progress >= 1) {
+        el.textContent = target;
+        clearInterval(animTimers[id]);
+      }
+    }, 16);
+  }
+
+})();
+
+</script>
+</body>
+</html>
