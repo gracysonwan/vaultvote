@@ -13,7 +13,7 @@ from flask_cors import CORS
 
 # ── App ──────────────────────────────────────────────────────
 app = Flask(__name__)
-app.secret_key = 'vaultvote-hackathon-2024-secret-xK9pL2mN'
+app.secret_key = 'vaultvote-hackathon-2026-secret-xK9pL2mN'
 app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 CORS(app, supports_credentials=True)
@@ -30,7 +30,7 @@ else:
 
 # ── Admin credentials ─────────────────────────────────────────
 ADMIN_ID       = 'ADMIN001'
-ADMIN_PASSWORD = 'VaultAdmin@2024'
+ADMIN_PASSWORD = 'VaultAdmin@2026'
 
 # ── Candidates (seeded at startup) ───────────────────────────
 CANDIDATES = [
