@@ -1,13 +1,13 @@
-# 🗳️ VaultVote — Secure Campus E-Voting System
+#  VaultVote — Secure Campus E-Voting System
 
-> Hackathon Project | Theme: Cybersecurity | Team: Gracy Sonwan
+> Hackathon Project | Theme: Cybersecurity | Team: Gracy Sonwan & Madhurjya kakati
 
 A cryptographically secure, full-stack campus e-voting platform with a cinematic 3D intro,
 glassmorphism UI, blockchain-inspired audit trail, and a live admin dashboard.
 
 ---
 
-## 🌐 Live Demo
+##  Live Demo
      https://vaultvote.onrender.com
 | Page | Link |
 | Admin Panel | https://vaultvote.onrender.com/admin |
@@ -18,7 +18,7 @@ glassmorphism UI, blockchain-inspired audit trail, and a live admin dashboard.
 
 ---
 
-## 📸 What It Looks Like
+##  What It Looks Like
 
 - **Cinematic Intro** — 3D glass bubbles, crystal shards, torus rings floating in baby-blue space. "VaultVote" types itself letter by letter with a 3D flip animation. Scroll to enter.
 - **Main Site** — Baby blue glassmorphism, liquid blob follows your mouse, floating 3D cards, smooth scroll animations, scrolling marquee ticker
@@ -29,7 +29,7 @@ glassmorphism UI, blockchain-inspired audit trail, and a live admin dashboard.
 
 ---
 
-## 📁 Project Structure
+##  Project Structure
 
 ```
 vaultvote/
@@ -44,12 +44,9 @@ vaultvote/
     └── admin.html          ← Admin dashboard (CSS + JS all embedded)
 ```
 
-> Note: All CSS and JavaScript is embedded directly inside the HTML files.
-> No separate static folder needed — just templates/ and app.py.
-
 ---
 
-## 🚀 Run Locally in VS Code
+##  Run Locally in VS Code
 
 ### Step 1 — Install dependencies
 ```bash
@@ -86,12 +83,12 @@ http://localhost:5000          ← Voting site
 http://localhost:5000/admin    ← Admin dashboard
 ```
 
-⚠️ **Do NOT open with Live Server or by double-clicking the HTML file.**
+ **Do NOT open with Live Server or by double-clicking the HTML file.**
 **Always use `http://localhost:5000` — Flask must be running.**
 
 ---
 
-## 🗳️ How to Use
+##  How to Use
 
 ### As a Voter
 1. Open `http://localhost:5000`
@@ -113,7 +110,7 @@ http://localhost:5000/admin    ← Admin dashboard
 
 ---
 
-## 🔐 Security Features
+##  Security Features
 
 | Feature | Implementation | Why It Matters |
 |---------|---------------|----------------|
@@ -129,7 +126,7 @@ http://localhost:5000/admin    ← Admin dashboard
 
 ---
 
-## 🛠️ Tech Stack
+##  Tech Stack
 
 | Layer | Technology |
 |-------|-----------|
@@ -143,27 +140,7 @@ http://localhost:5000/admin    ← Admin dashboard
 
 ---
 
-## 🌍 Deploy to Railway (Permanent Always-On Link)
-
-```bash
-# 1. Push to GitHub
-git init
-git add .
-git commit -m "VaultVote hackathon"
-git branch -M main
-git remote add origin https://github.com/YOURUSERNAME/vaultvote.git
-git push -u origin main
-
-# 2. Go to railway.app → Login with GitHub
-# 3. New Project → Deploy from GitHub → select vaultvote
-# 4. Settings → Start Command: gunicorn app:app
-# 5. Settings → Networking → Generate Domain
-# 6. Done! You get: https://vaultvote-production.up.railway.app
-```
-
----
-
-## 🔑 API Endpoints
+##  API Endpoints
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
@@ -183,30 +160,9 @@ git push -u origin main
 | GET | `/api/seed` | Re-seed candidates |
 
 ---
-
-## 🏆 Hackathon Judging Points
-
-### Cybersecurity Concepts Demonstrated
-1. **Hashing** — SHA-256 for votes, PBKDF2 for passwords
-2. **Salting** — Unique salt per user prevents pre-computed attacks
-3. **Anonymization** — Votes and identities in completely separate DB tables
-4. **Blockchain Principle** — Chain hash links every audit entry to the previous
-5. **Zero-Knowledge-Like Verification** — Voters can prove their vote exists without revealing who they voted for
-6. **Constant-Time Comparison** — Prevents timing attacks on password verification
-7. **Session Management** — HTTPOnly, SameSite cookie security
-
-### What Makes This Stand Out
-- Full working system — not just a mockup
-- Real cryptography (not fake/simulated)
-- Beautiful 3D glassmorphism UI that judges actually want to look at
-- Live admin dashboard with chain integrity verification
-- Deployed with a real URL — click and it works
-
----
-
-## 👤 Team
+##  Team
 
 Built for Hackathon — Cybersecurity Theme
-Developer: Gracy Sonwan
-College: VIT/SRM/Manipal tier
+Developer: Gracy Sonwan & Madhurjya Kakati
+College: Manipal University Jaipur
 Stack: Python + Flask + SQLite + Three.js
