@@ -8,11 +8,9 @@ glassmorphism UI, blockchain-inspired audit trail, and a live admin dashboard.
 ---
 
 ## 🌐 Live Demo
-
+     https://vaultvote.onrender.com
 | Page | Link |
-|------|------|
-| Voting Site | https://vaultvote-production.up.railway.app |
-| Admin Panel | https://vaultvote-production.up.railway.app/admin |
+| Admin Panel | https://vaultvote.onrender.com/admin |
 
 **Admin Credentials**
 - ID: `ADMIN001`
