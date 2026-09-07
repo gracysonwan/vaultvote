@@ -14,10 +14,12 @@ from flask_cors import CORS
 
 # ── App ──────────────────────────────────────────────────────
 app = Flask(__name__)
-app.secret_key = 'vaultvote-hackathon-2026-secret-xK9pL2mN'
+app.secret_key = os.environ.get('SECRET_KEY') or secrets.token_hex(32)
 app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
-CORS(app, supports_credentials=True)
+app.config['SESSION_COOKIE_SECURE'] = os.environ.get('COOKIE_SECURE', '0') == '1'
+_cors_origins = [origin.strip() for origin in os.environ.get('CORS_ORIGINS', 'http://localhost:5000').split(',') if origin.strip()]
+CORS(app, origins=_cors_origins, supports_credentials=True)
 
 # ── Database path (works locally + Railway + Render) ─────────
 _BASE = os.path.dirname(os.path.abspath(__file__))
@@ -30,8 +32,8 @@ else:
     DB_PATH = os.path.join(_BASE, 'vaultvote.db')      # Local dev
 
 # ── Admin credentials ─────────────────────────────────────────
-ADMIN_ID       = 'ADMIN001'
-ADMIN_PASSWORD = 'VaultAdmin@2024'
+ADMIN_ID       = os.environ.get('ADMIN_ID', 'ADMIN001')
+ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD') or secrets.token_urlsafe(16)
 
 # ── Candidates (seeded at startup) ───────────────────────────
 CANDIDATES = [
@@ -161,6 +163,7 @@ def admin_page():
 
 # ── API: seed (always safe to call) ──────────────────────────
 @app.route('/api/seed')
+@admin_required
 def seed():
     db = get_db()
     for c in CANDIDATES:
@@ -373,6 +376,6 @@ if __name__ == '__main__':
     print('\n' + '='*50)
     print('  VaultVote — http://localhost:5000')
     print('  Admin     — http://localhost:5000/admin')
-    print('  ID: ADMIN001  |  Pass: VaultAdmin@2024')
+    print(f'  ID: {ADMIN_ID}  |  Pass: {ADMIN_PASSWORD}')
     print('='*50 + '\n')
-    app.run(debug=True, port=5000, host='0.0.0.0')
+    app.run(debug=os.environ.get('FLASK_DEBUG', '0') == '1', port=5000, host='0.0.0.0')
