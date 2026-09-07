@@ -12,9 +12,21 @@ glassmorphism UI, blockchain-inspired audit trail, and a live admin dashboard.
 | Page | Link |
 | Admin Panel | https://vaultvote.onrender.com/admin |
 
-**Admin Credentials**
-- ID: `ADMIN001`
-- Password: `VaultAdmin@2024`
+**Admin configuration**
+
+Set these values before starting the server; do not commit them:
+
+Windows Command Prompt:
+
+~~~bat
+set SECRET_KEY=replace-with-a-long-random-value
+set ADMIN_ID=ADMIN001
+set ADMIN_PASSWORD=replace-with-a-strong-password
+set CORS_ORIGINS=http://localhost:5000
+python app.py
+~~~
+
+If `ADMIN_PASSWORD` is omitted, a random password is generated and printed only to the startup log.
 
 ---
 
@@ -37,6 +49,9 @@ vaultvote/
 ├── requirements.txt        ← pip dependencies
 ├── Procfile                ← for Railway/Render deployment
 ├── .gitignore              ← git ignore rules
+├── .env.example            ← environment variable template
+├── CONTRIBUTING.md         ← contribution workflow
+├── SECURITY.md             ← security and deployment guidance
 ├── README.md               ← this file
 ├── vaultvote.db            ← SQLite DB (auto-created on first run)
 └── templates/
