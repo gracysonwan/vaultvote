@@ -1,4 +1,7 @@
 vaultvote.db
 __pycache__/
-*.pyc
+*.py[cod]
+*.log
 .env
+.env.*
+!.env.example
