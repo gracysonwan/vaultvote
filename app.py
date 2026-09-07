@@ -370,7 +370,8 @@ def reset_election():
     return jsonify({'success':True,'message':'Election reset.'})
 
 # ── Startup ───────────────────────────────────────────────────
-init_db()
+if os.environ.get('SKIP_INIT_DB') != '1':
+    init_db()
 
 if __name__ == '__main__':
     print('\n' + '='*50)
