@@ -1,6 +1,6 @@
 #  VaultVote — Secure Campus E-Voting System
 
-> Hackathon Project | Theme: Cybersecurity | Team: Gracy Sonwan & Madhurjya kakati
+> Project | Theme: Cybersecurity | Team: Gracy Sonwan & Madhurjya kakati
 
 A cryptographically secure, full-stack campus e-voting platform with a cinematic 3D intro,
 glassmorphism UI, blockchain-inspired audit trail, and a live admin dashboard.
